@@ -17,7 +17,6 @@ import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/components/shared/toast-stack";
 import { vehicleApi, assignmentApi } from "@/lib/api";
 import { VehiclePosition } from "@/types";
-import { LargeButton } from "@/components/shared/large-button";
 import { ConnectionBadge } from "@/components/shared/connection-badge";
 import { useBusWebSocket, type WSConnectionStatus } from "@/hooks/use-bus-websocket";
 
@@ -26,6 +25,7 @@ export function PreRideScreen() {
   const { success, error: toastError } = useToast();
   const [position, setPosition] = useState<VehiclePosition | null>(null);
   const [starting, setStarting] = useState(false);
+  const [routeNumber, setRouteNumber] = useState("");
 
   const { status: wsStatus } = useBusWebSocket({
     token: session.driver_token || null,
@@ -71,13 +71,14 @@ export function PreRideScreen() {
   };
 
   const handleStartRide = async () => {
-    if (!vehicle?.route_id) {
-      toastError("No route assigned to this vehicle");
+    const rn = routeNumber.trim();
+    if (!rn) {
+      toastError("Please enter a route number");
       return;
     }
     setStarting(true);
     try {
-      await assignmentApi.start(vehicle.route_id);
+      await assignmentApi.start(rn);
       success("Ride started!");
       setScreen("active-ride");
     } catch (err: unknown) {
@@ -285,16 +286,60 @@ export function PreRideScreen() {
           </div>
         )}
 
-        {/* Start Ride Button */}
-        <div className="pt-2 pb-6">
-          <LargeButton
-            variant="success"
-            onClick={handleStartRide}
-            loading={starting}
-            icon={<Play className="w-5 h-5" />}
-          >
-            Start Ride
-          </LargeButton>
+        {/* Route Number Input */}
+        <div
+          className="p-5 rounded-2xl"
+          style={{
+            background: "var(--surface-800)",
+            border: "1px solid var(--border-subtle)",
+          }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Navigation className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
+            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+              Assign Route
+            </h3>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              value={routeNumber}
+              onChange={(e) => setRouteNumber(e.target.value)}
+              placeholder="Enter route number (e.g. 121)"
+              className="flex-1 px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all"
+              style={{
+                background: "var(--surface-700)",
+                border: "1px solid var(--border-subtle)",
+                color: "var(--text-primary)",
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleStartRide();
+              }}
+            />
+            <button
+              onClick={handleStartRide}
+              disabled={starting || !routeNumber.trim()}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: "var(--success-dim)",
+                border: "1px solid var(--success-border)",
+                color: "var(--success)",
+              }}
+            >
+              {starting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Play className="w-5 h-5" />
+              )}
+              Start Ride
+            </button>
+          </div>
+          {route && (
+            <p className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
+              Current route: <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>{route.route_number}</span>
+              {route.name && ` — ${route.name}`}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -57,7 +57,7 @@ export const routeApi = {
 // ─── Driver Assignments ───
 export const assignmentApi = {
   getCurrent: () => api.get("/driver/assignments/current"),
-  start: (route_id: number) => api.post("/driver/assignments/start", { route_id }),
+  start: (route_number: string) => api.post("/driver/assignments/start", { route_number }),
   end: (assignment_id: number) =>
     api.post("/driver/assignments/end", { assignment_id }),
 };
