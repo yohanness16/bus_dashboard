@@ -283,8 +283,13 @@ export function ActiveRideScreen() {
       setShowEndModal(false);
       setScreen("post-ride");
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to end ride";
+      let msg = "Failed to end ride";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        msg = axiosErr.response?.data?.detail || msg;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
       toastError(msg);
     } finally {
       setEnding(false);
