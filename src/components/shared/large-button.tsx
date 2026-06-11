@@ -61,7 +61,7 @@ export function LargeButton({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl text-base font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[56px] ${className}`}
+      className={`w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl text-base font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[56px] hover:brightness-110 ${className}`}
       style={variantStyles[variant]}
     >
       {loading ? (
