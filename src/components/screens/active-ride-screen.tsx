@@ -9,7 +9,6 @@ import {
   MapPin,
   LogOut,
   Square,
-  Megaphone,
   Loader2,
   Navigation,
   Wifi,
@@ -47,7 +46,7 @@ function CrowdIndicator({ level }: { level: CrowdLevel }) {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="w-2.5 rounded-sm transition-all"
+          className="w-2.5 rounded-sm transition-all duration-300"
           style={{
             background: i <= config.bars ? config.color : "var(--surface-600)",
             height: `${10 + i * 5}px`,
@@ -84,10 +83,7 @@ function ETACountdown({ eta }: { eta: ETAStopPayload | null }) {
 
   if (!eta)
     return (
-      <span
-        className="text-3xl font-bold tabular-nums"
-        style={{ color: "var(--text-muted)" }}
-      >
+      <span className="text-3xl font-bold tabular-nums" style={{ color: "var(--text-muted)" }}>
         —:——
       </span>
     );
@@ -125,16 +121,14 @@ function RouteProgressBar({
           <div key={stop.id} className="flex items-center shrink-0">
             {idx > 0 && (
               <div
-                className="w-3 h-0.5 shrink-0"
+                className="w-3 h-0.5 shrink-0 transition-all duration-300"
                 style={{
-                  background: passed
-                    ? "var(--success)"
-                    : "var(--surface-600)",
+                  background: passed ? "var(--success)" : "var(--surface-600)",
                 }}
               />
             )}
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold transition-all"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold transition-all duration-300"
               style={{
                 background: passed
                   ? "var(--success)"
@@ -142,9 +136,7 @@ function RouteProgressBar({
                   ? "var(--primary-500)"
                   : "var(--surface-700)",
                 color: passed || current ? "#fff" : "var(--text-muted)",
-                boxShadow: current
-                  ? "0 0 0 3px rgba(59,130,246,0.3)"
-                  : "none",
+                boxShadow: current ? "0 0 0 3px rgba(59,130,246,0.3)" : "none",
                 transform: current ? "scale(1.15)" : "scale(1)",
               }}
             >
@@ -153,6 +145,41 @@ function RouteProgressBar({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ─── Stat Card (inline) ───
+function InlineStatCard({
+  icon: Icon,
+  value,
+  unit,
+  label,
+  color,
+}: {
+  icon: typeof Gauge;
+  value: string;
+  unit?: string;
+  label: string;
+  color: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center p-4 surface-card">
+      <Icon className="w-5 h-5 mb-1.5" style={{ color }} />
+      <p className="text-2xl font-bold tabular-nums" style={{ color: "var(--text-primary)" }}>
+        {value}
+        {unit && (
+          <span className="text-xs font-medium ml-0.5" style={{ color: "var(--text-muted)" }}>
+            {unit}
+          </span>
+        )}
+      </p>
+      <p
+        className="text-[10px] font-semibold uppercase tracking-wider mt-1"
+        style={{ color: "var(--text-tertiary)" }}
+      >
+        {label}
+      </p>
     </div>
   );
 }
@@ -180,7 +207,6 @@ export function ActiveRideScreen() {
     startTime: Date.now(),
   });
 
-  // Load route if not already loaded
   useEffect(() => {
     if (!route && vehicle?.route_id) {
       routeApi
@@ -194,24 +220,14 @@ export function ActiveRideScreen() {
 
   const activeRoute = route || liveRoute;
 
-  // Compute nearest stop when position changes
   useEffect(() => {
     if (!position || !activeRoute?.stops) return;
-    const idx = findNearestStopIndex(
-      position.lat,
-      position.lon,
-      activeRoute.stops
-    );
+    const idx = findNearestStopIndex(position.lat, position.lon, activeRoute.stops);
     if (idx >= 0) setCurrentStopIdx(idx);
 
     const s = statsRef.current;
     if (s.lastLat !== null && s.lastLon !== null) {
-      s.distanceM += haversine(
-        s.lastLat,
-        s.lastLon,
-        position.lat,
-        position.lon
-      );
+      s.distanceM += haversine(s.lastLat, s.lastLon, position.lat, position.lon);
     }
     s.lastLat = position.lat;
     s.lastLon = position.lon;
@@ -220,7 +236,6 @@ export function ActiveRideScreen() {
     }
   }, [position, activeRoute]);
 
-  // WebSocket
   const { status: wsStatus } = useBusWebSocket({
     token: session.driver_token || null,
     routeId: session.route_id || vehicle?.route_id || null,
@@ -248,7 +263,6 @@ export function ActiveRideScreen() {
     },
   });
 
-  // Get current assignment on mount
   useEffect(() => {
     assignmentApi
       .getCurrent()
@@ -316,19 +330,14 @@ export function ActiveRideScreen() {
   const distanceKm = (statsRef.current.distanceM / 1000).toFixed(1);
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "var(--surface-900)" }}
-    >
-      <OfflineBanner
-        show={wsStatus === "disconnected" || wsStatus === "error"}
-      />
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--surface-900)" }}>
+      <OfflineBanner show={wsStatus === "disconnected" || wsStatus === "error"} />
 
       {/* ── Top Bar ── */}
       <header
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{
-          background: "var(--surface-800)",
+          background: "var(--surface-850)",
           borderBottom: "1px solid var(--border-subtle)",
         }}
       >
@@ -337,24 +346,15 @@ export function ActiveRideScreen() {
             className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: "rgba(59,130,246,0.15)" }}
           >
-            <Bus
-              className="w-4 h-4"
-              style={{ color: "var(--primary-400)" }}
-            />
+            <Bus className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
           </div>
-          <span
-            className="text-sm font-bold"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
             Bus #{vehicle?.id || session.vehicle_id}
           </span>
           {activeRoute && (
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-md"
-              style={{
-                background: "var(--primary-500)",
-                color: "#fff",
-              }}
+              style={{ background: "var(--primary-500)", color: "#fff" }}
             >
               {activeRoute.route_number}
             </span>
@@ -370,20 +370,22 @@ export function ActiveRideScreen() {
         </div>
         <div className="flex items-center gap-2">
           {wsStatus === "connected" ? (
-            <Wifi
-              className="w-3.5 h-3.5"
-              style={{ color: "var(--success)" }}
-            />
+            <Wifi className="w-3.5 h-3.5" style={{ color: "var(--success)" }} />
           ) : (
-            <WifiOff
-              className="w-3.5 h-3.5"
-              style={{ color: "var(--warning)" }}
-            />
+            <WifiOff className="w-3.5 h-3.5" style={{ color: "var(--warning)" }} />
           )}
           <button
             onClick={handleLogout}
-            className="p-2 rounded-lg cursor-pointer transition-all hover:opacity-80"
+            className="p-2 rounded-lg cursor-pointer transition-all duration-200"
             style={{ color: "var(--text-muted)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--surface-700)";
+              e.currentTarget.style.color = "var(--text-secondary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--text-muted)";
+            }}
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -391,21 +393,17 @@ export function ActiveRideScreen() {
       </header>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-5xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-6xl mx-auto w-full">
         {/* Next Stop ETA — Hero Card */}
         <div
-          className="rounded-2xl p-5 anim-fade-up"
+          className="surface-card p-6 anim-fade-up"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(56,189,248,0.05))",
+            background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(56,189,248,0.05))",
             border: "1px solid rgba(59,130,246,0.2)",
           }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <Navigation
-              className="w-4 h-4"
-              style={{ color: "var(--primary-400)" }}
-            />
+            <Navigation className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
             <h3
               className="text-[10px] font-bold uppercase tracking-wider"
               style={{ color: "var(--text-tertiary)" }}
@@ -421,129 +419,38 @@ export function ActiveRideScreen() {
           className="grid grid-cols-2 md:grid-cols-4 gap-3 anim-fade-up"
           style={{ animationDelay: "50ms" }}
         >
-          <div
-            className="flex flex-col items-center justify-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <Gauge
-              className="w-5 h-5 mb-1.5"
-              style={{ color: "var(--primary-400)" }}
-            />
-            <p
-              className="text-2xl font-bold tabular-nums"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {position?.speed?.toFixed(0) || "—"}
-              <span
-                className="text-xs font-medium ml-0.5"
-                style={{ color: "var(--text-muted)" }}
-              >
-                km/h
-              </span>
-            </p>
-            <p
-              className="text-[10px] font-semibold uppercase tracking-wider mt-1"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Speed
-            </p>
-          </div>
-
-          <div
-            className="flex flex-col items-center justify-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <Users
-              className="w-5 h-5 mb-1.5"
-              style={{ color: "var(--warning)" }}
-            />
-            <p
-              className="text-2xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {crowdLevel === 0 ? "L" : crowdLevel === 1 ? "M" : "H"}
-            </p>
-            <p
-              className="text-[10px] font-semibold uppercase tracking-wider mt-1"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Crowd
-            </p>
-          </div>
-
-          <div
-            className="flex flex-col items-center justify-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <Clock
-              className="w-5 h-5 mb-1.5"
-              style={{ color: "var(--accent-300)" }}
-            />
-            <p
-              className="text-2xl font-bold tabular-nums"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {nextStopEta()
-                ? `${Math.ceil(nextStopEta()!.eta_seconds / 60)}`
-                : "—"}
-              <span
-                className="text-xs font-medium ml-0.5"
-                style={{ color: "var(--text-muted)" }}
-              >
-                min
-              </span>
-            </p>
-            <p
-              className="text-[10px] font-semibold uppercase tracking-wider mt-1"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              ETA
-            </p>
-          </div>
-
-          <div
-            className="flex flex-col items-center justify-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <MapPin
-              className="w-5 h-5 mb-1.5"
-              style={{ color: "var(--success)" }}
-            />
-            <p
-              className="text-2xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {currentStopIdx + 1}/{activeRoute?.stops?.length || "—"}
-            </p>
-            <p
-              className="text-[10px] font-semibold uppercase tracking-wider mt-1"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Progress
-            </p>
-          </div>
+          <InlineStatCard
+            icon={Gauge}
+            value={position?.speed?.toFixed(0) || "—"}
+            unit="km/h"
+            label="Speed"
+            color="var(--primary-400)"
+          />
+          <InlineStatCard
+            icon={Users}
+            value={crowdLevel === 0 ? "L" : crowdLevel === 1 ? "M" : "H"}
+            label="Crowd"
+            color="var(--warning)"
+          />
+          <InlineStatCard
+            icon={Clock}
+            value={nextStopEta() ? `${Math.ceil(nextStopEta()!.eta_seconds / 60)}` : "—"}
+            unit="min"
+            label="ETA"
+            color="var(--accent-300)"
+          />
+          <InlineStatCard
+            icon={MapPin}
+            value={`${currentStopIdx + 1}/${activeRoute?.stops?.length || "—"}`}
+            label="Progress"
+            color="var(--success)"
+          />
         </div>
 
         {/* Crowd Density */}
         <div
-          className="flex items-center justify-between px-4 py-3 rounded-xl anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            animationDelay: "100ms",
-          }}
+          className="flex items-center justify-between px-4 py-3 surface-card anim-fade-up"
+          style={{ animationDelay: "100ms" }}
         >
           <span
             className="text-[10px] font-bold uppercase tracking-wider"
@@ -557,18 +464,11 @@ export function ActiveRideScreen() {
         {/* Route Progress */}
         {activeRoute?.stops && activeRoute.stops.length > 0 && (
           <div
-            className="rounded-2xl p-4 anim-fade-up"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-              animationDelay: "150ms",
-            }}
+            className="surface-card p-4 anim-fade-up"
+            style={{ animationDelay: "150ms" }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <Route
-                className="w-4 h-4"
-                style={{ color: "var(--success)" }}
-              />
+              <Route className="w-4 h-4" style={{ color: "var(--success)" }} />
               <h3
                 className="text-[10px] font-bold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}
@@ -576,18 +476,13 @@ export function ActiveRideScreen() {
                 Route Progress
               </h3>
             </div>
-            <RouteProgressBar
-              stops={activeRoute.stops}
-              currentIdx={currentStopIdx}
-            />
+            <RouteProgressBar stops={activeRoute.stops} currentIdx={currentStopIdx} />
             <div
               className="flex justify-between mt-2 text-[10px]"
               style={{ color: "var(--text-muted)" }}
             >
               <span>{activeRoute.stops[0]?.name}</span>
-              <span>
-                {activeRoute.stops[activeRoute.stops.length - 1]?.name}
-              </span>
+              <span>{activeRoute.stops[activeRoute.stops.length - 1]?.name}</span>
             </div>
           </div>
         )}
@@ -597,17 +492,8 @@ export function ActiveRideScreen() {
           className="grid grid-cols-3 gap-3 anim-fade-up"
           style={{ animationDelay: "200ms" }}
         >
-          <div
-            className="flex flex-col items-center p-3 rounded-xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <p
-              className="text-lg font-bold tabular-nums"
-              style={{ color: "var(--text-primary)" }}
-            >
+          <div className="flex flex-col items-center p-3 surface-card">
+            <p className="text-lg font-bold tabular-nums" style={{ color: "var(--text-primary)" }}>
               {avgSpeed}
             </p>
             <p
@@ -617,17 +503,8 @@ export function ActiveRideScreen() {
               Avg km/h
             </p>
           </div>
-          <div
-            className="flex flex-col items-center p-3 rounded-xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <p
-              className="text-lg font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
+          <div className="flex flex-col items-center p-3 surface-card">
+            <p className="text-lg font-bold tabular-nums" style={{ color: "var(--text-primary)" }}>
               {distanceKm}
             </p>
             <p
@@ -637,13 +514,7 @@ export function ActiveRideScreen() {
               km
             </p>
           </div>
-          <div
-            className="flex flex-col items-center p-3 rounded-xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
+          <div className="flex flex-col items-center p-3 surface-card">
             <p
               className="text-lg font-bold"
               style={{
@@ -670,7 +541,7 @@ export function ActiveRideScreen() {
         <div className="pt-2 pb-6 anim-fade-up" style={{ animationDelay: "250ms" }}>
           <button
             onClick={() => setShowEndModal(true)}
-            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] cursor-pointer"
             style={{
               background: "linear-gradient(135deg, #F87171, #EF4444)",
               color: "#fff",
