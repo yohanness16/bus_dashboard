@@ -2,71 +2,34 @@
 
 import type { ReactNode } from "react";
 
-type BadgeVariant = "default" | "primary" | "success" | "danger" | "warning" | "info";
+type BadgeVariant = "default" | "primary" | "success" | "danger" | "warning" | "secondary";
 
 interface BadgeProps {
   children: ReactNode;
   variant?: BadgeVariant;
-  dot?: boolean;
   className?: string;
 }
 
-const variantStyles: Record<BadgeVariant, { bg: string; border: string; color: string }> = {
-  default: {
-    bg: "var(--surface-700)",
-    border: "var(--border-subtle)",
-    color: "var(--text-secondary)",
-  },
-  primary: {
-    bg: "var(--info-dim)",
-    border: "var(--info-border)",
-    color: "var(--info)",
-  },
-  success: {
-    bg: "var(--success-dim)",
-    border: "var(--success-border)",
-    color: "var(--success)",
-  },
-  danger: {
-    bg: "var(--danger-dim)",
-    border: "var(--danger-border)",
-    color: "var(--danger)",
-  },
-  warning: {
-    bg: "var(--warning-dim)",
-    border: "var(--warning-border)",
-    color: "var(--warning)",
-  },
-  info: {
-    bg: "var(--info-dim)",
-    border: "var(--info-border)",
-    color: "var(--info)",
-  },
+const variantClasses: Record<BadgeVariant, string> = {
+  default: "border-transparent bg-secondary text-secondary-foreground",
+  primary: "border-transparent bg-primary text-primary-foreground",
+  success: "border-transparent text-white",
+  danger: "border-transparent text-white",
+  warning: "border-transparent text-white",
+  secondary: "border-transparent bg-muted text-muted-foreground",
 };
 
-export function Badge({
-  children,
-  variant = "default",
-  dot = false,
-  className = "",
-}: BadgeProps) {
-  const styles = variantStyles[variant];
+export function Badge({ children, variant = "default", className = "" }: BadgeProps) {
+  const style: React.CSSProperties = {};
+  if (variant === "success") style.background = "var(--success)";
+  if (variant === "danger") style.background = "var(--danger)";
+  if (variant === "warning") style.background = "var(--warning)";
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${className}`}
-      style={{
-        background: styles.bg,
-        border: `1px solid ${styles.border}`,
-        color: styles.color,
-      }}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${variantClasses[variant]} ${className}`}
+      style={style}
     >
-      {dot && (
-        <span
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ background: styles.color }}
-        />
-      )}
       {children}
     </span>
   );
