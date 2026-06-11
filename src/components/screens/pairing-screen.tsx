@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bus, Lock, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/components/shared/toast-stack";
@@ -15,12 +15,12 @@ export function PairingScreen() {
   const [timeLeft, setTimeLeft] = useState(300);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  });
+  }, []);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);

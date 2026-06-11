@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "./sidebar";
 import { TopNav } from "./top-nav";
 
@@ -20,15 +20,32 @@ export function DashboardShell({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Sync dark mode class on mount
+  useEffect(() => {
+    setMounted(true);
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
 
   const toggleDark = () => {
     setDarkMode((prev) => {
       const next = !prev;
-      document.documentElement.classList.toggle("dark", next);
-      document.documentElement.classList.toggle("light", !next);
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.toggle("dark", next);
+        document.documentElement.classList.toggle("light", !next);
+      }
       return next;
     });
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--surface-900)" }}>
