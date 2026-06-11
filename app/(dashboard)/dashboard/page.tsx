@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OccupancyGauge } from "@/components/dashboard/occupancy-gauge";
 import { VehicleStats } from "@/components/dashboard/vehicle-stats";
-import { ConnectionStatus } from "@/components/dashboard/connection-status";
 import { useCurrentTime } from "@/hooks/use-current-time";
 import { useBusWebSocket } from "@/hooks/use-bus-websocket";
 import { routeApi, assignmentApi } from "@/lib/api";
@@ -122,7 +121,16 @@ export default function PreRidePage() {
       await assignmentApi.start(selectedRoute.route_number);
       router.push("/dashboard/ride");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to start ride";
+      let msg = "Could not start ride. Please try again.";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        const detail = axiosErr.response?.data?.detail;
+        if (detail?.includes("already has an active assignment")) {
+          msg = "This bus already has an active ride. Please end it first.";
+        } else if (detail?.includes("not found")) {
+          msg = "Route not found. Please select a different route.";
+        }
+      }
       alert(msg);
     } finally {
       setStartingRide(false);
@@ -146,7 +154,6 @@ export default function PreRidePage() {
           <p className="text-gray-500 text-sm mt-1">Select a route and review your vehicle before starting</p>
         </div>
         <div className="flex items-center gap-3">
-          <ConnectionStatus status={wsStatus} />
           <div className="text-right">
             <p className="text-base font-bold text-gray-900 font-mono">
               {now ? formatTime(now) : "--:--:--"}

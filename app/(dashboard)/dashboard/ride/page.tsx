@@ -11,7 +11,6 @@ import { OccupancyGauge } from "@/components/dashboard/occupancy-gauge";
 import { SpeedIndicator } from "@/components/dashboard/speed-indicator";
 import { RouteProgress } from "@/components/dashboard/route-progress";
 import { VehicleStats } from "@/components/dashboard/vehicle-stats";
-import { ConnectionStatus } from "@/components/dashboard/connection-status";
 import { useCurrentTime } from "@/hooks/use-current-time";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useBusWebSocket } from "@/hooks/use-bus-websocket";
@@ -131,7 +130,16 @@ export default function ActiveRidePage() {
       setAssignment(res.data);
       setIsRideActive(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to start ride";
+      let msg = "Could not start ride. Please try again.";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        const detail = axiosErr.response?.data?.detail;
+        if (detail?.includes("already has an active assignment")) {
+          msg = "This bus already has an active ride. Please end it first.";
+        } else if (detail?.includes("not found")) {
+          msg = "Route not found. Please select a different route.";
+        }
+      }
       alert(msg);
     }
   };
@@ -147,7 +155,7 @@ export default function ActiveRidePage() {
           aid = res.data.id;
           setAssignment(res.data);
         } else {
-          alert("No active assignment found. You may already have ended this ride.");
+          alert("No active ride found. You may have already ended it.");
           return;
         }
       }
@@ -156,12 +164,17 @@ export default function ActiveRidePage() {
       setAssignment(null);
       router.push("/dashboard/post-ride");
     } catch (err: unknown) {
-      let msg = "Failed to end ride";
+      let msg = "Could not end ride. Please try again.";
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as { response?: { data?: { detail?: string } } };
-        msg = axiosErr.response?.data?.detail || msg;
-      } else if (err instanceof Error) {
-        msg = err.message;
+        const detail = axiosErr.response?.data?.detail;
+        if (detail?.includes("not active")) {
+          msg = "This ride has already ended.";
+        } else if (detail?.includes("No active driver session")) {
+          msg = "Your session has expired. Please sign in again.";
+        } else if (detail?.includes("does not belong to your vehicle")) {
+          msg = "This ride belongs to a different vehicle.";
+        }
       }
       alert(msg);
     } finally {
@@ -204,7 +217,6 @@ export default function ActiveRidePage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <ConnectionStatus status={wsStatus} />
           <div className="text-right">
             <p className="text-base font-bold text-gray-900 font-mono">
               {now ? formatTime(now) : "--:--:--"}

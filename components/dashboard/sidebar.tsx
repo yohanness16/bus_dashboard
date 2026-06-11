@@ -38,7 +38,7 @@ export function Sidebar({ vehiclePlate, routeNumber }: SidebarProps) {
       label: "Active Ride",
       href: "/dashboard/ride",
       active: pathname === "/dashboard/ride",
-      visible: screen === ("active-ride" as AppScreen) || screen === ("pre-ride" as AppScreen),
+      visible: screen === "active-ride",
     },
     {
       icon: BarChart3,

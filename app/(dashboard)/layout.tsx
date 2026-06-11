@@ -4,13 +4,14 @@ import { useAuth } from "@/providers/auth-provider";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { useBusWebSocket } from "@/hooks/use-bus-websocket";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ConnectionStatus } from "@/types";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { session, screen } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [wsStatus, setWsStatus] = useState<ConnectionStatus>("idle");
 
   const { status } = useBusWebSocket({
@@ -25,10 +26,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [status]);
 
   useEffect(() => {
-    if (screen === "pairing") router.replace("/pairing");
-    else if (screen === "unlock") router.replace("/unlock");
-    else if (screen === "login") router.replace("/login");
-  }, [screen, router]);
+    // Only redirect to auth screens if we're actually on an auth screen.
+    // Don't redirect away from dashboard pages (pre-ride, active-ride, post-ride).
+    if (screen === "pairing" && !pathname.startsWith("/pairing")) {
+      router.replace("/pairing");
+    } else if (screen === "unlock" && !pathname.startsWith("/unlock")) {
+      router.replace("/unlock");
+    } else if (screen === "login" && !pathname.startsWith("/login")) {
+      router.replace("/login");
+    }
+  }, [screen, router, pathname]);
 
   return (
     <div className="flex min-h-dvh bg-surface-secondary">
