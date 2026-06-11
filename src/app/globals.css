@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 /* ============================================================
-   BusTrack Design System — Premium SaaS Dashboard
-   Modern blue-themed enterprise palette with dark surfaces
+   BusTrack Design System — Premium SaaS Dashboard v2.0
+   Light + Dark mode · Inter font · Refined elevation
    ============================================================ */
 
-:root {
+/* ── Dark Theme (default) ── */
+:root,
+.dark {
   /* ── Primary Blues ── */
   --primary-400: #60A5FA;
   --primary-500: #3B82F6;
@@ -19,13 +21,20 @@
   --accent-50: #EFF6FF;
 
   /* ── Dark Surfaces ── */
+  --surface-950: #020617;
   --surface-900: #0F172A;
   --surface-850: #111827;
   --surface-800: #1E293B;
   --surface-700: #334155;
   --surface-600: #475569;
+  --surface-500: #64748B;
+  --surface-400: #94A3B8;
+  --surface-300: #CBD5E1;
+  --surface-200: #E2E8F0;
+  --surface-100: #F1F5F9;
+  --surface-50: #F8FAFC;
 
-  /* ── Text Scale ── */
+  /* ── Text Scale (dark) ── */
   --text-primary: #F1F5F9;
   --text-secondary: #94A3B8;
   --text-tertiary: #64748B;
@@ -72,7 +81,7 @@
   --radius-2xl: 24px;
   --radius-full: 9999px;
 
-  /* ── Sidebar ── */
+  /* ── Layout ── */
   --sidebar-width: 260px;
   --sidebar-collapsed: 72px;
   --topnav-height: 60px;
@@ -80,6 +89,67 @@
   /* ── Transitions ── */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Light Theme ── */
+.light {
+  --primary-400: #3B82F6;
+  --primary-500: #2563EB;
+  --primary-600: #1D4ED8;
+  --primary-700: #1E40AF;
+
+  --accent-300: #0EA5E9;
+  --accent-200: #0284C7;
+  --accent-100: #0369A1;
+  --accent-50: #F0F9FF;
+
+  /* ── Light Surfaces ── */
+  --surface-950: #0F172A;
+  --surface-900: #1E293B;
+  --surface-850: #334155;
+  --surface-800: #F1F5F9;
+  --surface-700: #E2E8F0;
+  --surface-600: #CBD5E1;
+  --surface-500: #94A3B8;
+  --surface-400: #64748B;
+  --surface-300: #475569;
+  --surface-200: #334155;
+  --surface-100: #1E293B;
+  --surface-50: #0F172A;
+
+  /* ── Text Scale (light) ── */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #64748B;
+  --text-muted: #94A3B8;
+  --text-inverse: #F8FAFC;
+
+  /* ── Status Colors (light — slightly darker for contrast) ── */
+  --success: #059669;
+  --success-dim: rgba(5, 150, 105, 0.08);
+  --success-border: rgba(5, 150, 105, 0.25);
+  --danger: #DC2626;
+  --danger-dim: rgba(220, 38, 38, 0.08);
+  --danger-border: rgba(220, 38, 38, 0.25);
+  --warning: #D97706;
+  --warning-dim: rgba(217, 119, 6, 0.08);
+  --warning-border: rgba(217, 119, 6, 0.25);
+  --info: #2563EB;
+  --info-dim: rgba(37, 99, 235, 0.08);
+  --info-border: rgba(37, 99, 235, 0.25);
+
+  /* ── Borders (light) ── */
+  --border-subtle: rgba(203, 213, 225, 0.6);
+  --border-default: rgba(148, 163, 184, 0.5);
+  --border-strong: rgba(100, 116, 139, 0.4);
+
+  /* ── Shadows (light — softer) ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.1);
+  --shadow-glow-lg: 0 0 40px rgba(59, 130, 246, 0.15);
 }
 
 /* ── Reset ── */
@@ -94,6 +164,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out);
 }
 
 /* ── Scrollbar ── */
@@ -113,20 +184,17 @@ body {
 }
 
 /* ============================================================
-   Utility Classes
+   Surface & Card Utilities
    ============================================================ */
 
-/* ── Surface Cards ── */
 .surface-card {
   background: var(--surface-800);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
-}
-
-.surface-card-hover {
   transition: all 0.25s var(--ease-out);
 }
+
 .surface-card-hover:hover {
   border-color: var(--border-default);
   box-shadow: var(--shadow-lg), var(--shadow-glow);
@@ -140,12 +208,21 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+.light .surface-elevated {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(241, 245, 249, 0.95) 100%);
+}
+
 /* ── Glass Effect ── */
 .glass {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(51, 65, 85, 0.4);
+}
+
+.light .glass {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(203, 213, 225, 0.5);
 }
 
 /* ── Glow Effect ── */
@@ -178,7 +255,10 @@ body {
   pointer-events: none;
 }
 
-/* ── Animations ── */
+/* ============================================================
+   Animations
+   ============================================================ */
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -233,6 +313,21 @@ body {
   50% { transform: translateY(-8px); }
 }
 
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes pulseRing {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
 .anim-fade-in { animation: fadeIn 0.3s var(--ease-out) both; }
 .anim-fade-up { animation: fadeInUp 0.4s var(--ease-out) both; }
 .anim-fade-down { animation: fadeInDown 0.4s var(--ease-out) both; }
@@ -240,6 +335,8 @@ body {
 .anim-slide-right { animation: slideInRight 0.4s var(--ease-out) both; }
 .anim-scale-in { animation: scaleIn 0.3s var(--ease-out) both; }
 .anim-float { animation: float 6s ease-in-out infinite; }
+.anim-slide-up { animation: slideUp 0.4s var(--ease-out) both; }
+.breathe { animation: breathe 3s ease-in-out infinite; }
 
 /* Stagger children */
 .stagger-children > * {
@@ -274,7 +371,23 @@ body {
   border: none;
 }
 
-/* ── Leaflet Overrides ── */
+/* ── Pulse Ring ── */
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: pulseRing 1.5s ease-out infinite;
+}
+
+/* ── Number Tabular ── */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   Leaflet Map Overrides
+   ============================================================ */
+
 .leaflet-container {
   background: var(--surface-800) !important;
   border-radius: var(--radius-lg);
@@ -296,8 +409,12 @@ body {
 .leaflet-control-attribution a {
   color: var(--primary-400) !important;
 }
+.leaflet-tile-pane { filter: brightness(0.9) contrast(1.1); }
 
-/* ── Custom Checkbox / Toggle ── */
+/* ============================================================
+   Custom Toggle
+   ============================================================ */
+
 .toggle-track {
   position: relative;
   width: 44px;
@@ -326,48 +443,12 @@ body {
   transform: translateX(20px);
 }
 
-/* ── Driver-First Touch Targets ── */
+/* ============================================================
+   Driver-First Touch Targets
+   ============================================================ */
+
 @media (pointer: coarse) {
   button, a, input, select {
     min-height: 48px;
   }
 }
-
-/* ── Pulse Ring Animation ── */
-@keyframes pulseRing {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
-}
-
-.pulse-ring::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 2px solid currentColor;
-  animation: pulseRing 1.5s ease-out infinite;
-}
-
-/* ── Breathing Glow ── */
-@keyframes breathe {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-.breathe {
-  animation: breathe 3s ease-in-out infinite;
-}
-
-/* ── Slide Up ── */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.anim-slide-up { animation: slideUp 0.4s var(--ease-out) both; }
-
-/* ── Number Tabular ── */
-.tabular-nums { font-variant-numeric: tabular-nums; }
-
-/* ── Map Container Fix ── */
-.leaflet-tile-pane { filter: brightness(0.9) contrast(1.1); }
