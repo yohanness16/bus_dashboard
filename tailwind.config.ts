@@ -1,106 +1,84 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
   darkMode: "class",
   theme: {
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+        // Dark theme palette for bus dashboard
+        bg: {
+          DEFAULT: "#0F172A",
+          surface: "#1E293B",
+          card: "#1E293B",
+          elevated: "#334155",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#2563EB",
+          hover: "#1D4ED8",
+          muted: "#1E40AF",
         },
         success: "#10B981",
         warning: "#F59E0B",
-        danger: "#EF4444",
-        info: "#3B82F6",
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        xl: "calc(var(--radius) + 4px)",
+        destructive: "#DC2626",
+        text: {
+          primary: "#F8FAFC",
+          secondary: "#94A3B8",
+          muted: "#64748B",
+        },
+        border: {
+          DEFAULT: "rgba(255,255,255,0.08)",
+          subtle: "rgba(255,255,255,0.05)",
+        },
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
         mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       boxShadow: {
-        sm: "0 1px 2px rgba(0,0,0,0.05)",
-        md: "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)",
-        lg: "0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06)",
-        xl: "0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05)",
+        glow: "0 0 20px rgba(37, 99, 235, 0.15)",
+        "glow-lg": "0 0 40px rgba(37, 99, 235, 0.2)",
+        card: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2)",
+      },
+      animation: {
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "ping-slow": "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+        shimmer: "shimmer 2s infinite",
+        "fade-in": "fadeIn 0.3s ease-out",
+        "slide-up": "slideUp 0.3s ease-out",
+        "slide-in-right": "slideInRight 0.3s ease-out",
+        "bounce-subtle": "bounceSubtle 0.5s ease-out",
       },
       keyframes: {
-        "fade-in": {
-          from: { opacity: "0" },
-          to: { opacity: "1" },
-        },
-        "fade-up": {
-          from: { opacity: "0", transform: "translateY(8px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "fade-down": {
-          from: { opacity: "0", transform: "translateY(-8px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "slide-in-right": {
-          from: { opacity: "0", transform: "translateX(16px)" },
-          to: { opacity: "1", transform: "translateX(0)" },
-        },
-        "scale-in": {
-          from: { opacity: "0", transform: "scale(0.96)" },
-          to: { opacity: "1", transform: "scale(1)" },
-        },
-        "shimmer": {
+        shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
-        "spin": {
-          to: { transform: "rotate(360deg)" },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
-        "pulse-dot": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.4" },
+        slideUp: {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
-      },
-      animation: {
-        "fade-in": "fade-in 0.2s ease-out both",
-        "fade-up": "fade-up 0.3s ease-out both",
-        "fade-down": "fade-down 0.3s ease-out both",
-        "slide-in-right": "slide-in-right 0.3s ease-out both",
-        "scale-in": "scale-in 0.2s ease-out both",
-        "shimmer": "shimmer 1.5s ease-in-out infinite",
-        "spin": "spin 0.8s linear infinite",
-        "pulse-dot": "pulse-dot 2s ease-in-out infinite",
+        slideInRight: {
+          "0%": { opacity: "0", transform: "translateX(20px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        bounceSubtle: {
+          "0%": { transform: "scale(0.95)" },
+          "50%": { transform: "scale(1.02)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
     },
   },
   plugins: [],
 };
+
 export default config;
