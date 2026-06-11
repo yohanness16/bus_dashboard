@@ -31,20 +31,9 @@ export function PairingScreen() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
-
-    if (password.length < 6) {
-      setLocalError("Password must be at least 6 characters");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setLocalError("Passwords don't match");
-      return;
-    }
-    if (!code.trim()) {
-      setLocalError("Pairing code is required");
-      return;
-    }
-
+    if (password.length < 6) { setLocalError("Password must be at least 6 characters"); return; }
+    if (password !== confirmPassword) { setLocalError("Passwords don't match"); return; }
+    if (!code.trim()) { setLocalError("Pairing code is required"); return; }
     try {
       await pairDevice(code.trim().toUpperCase(), password);
     } catch (err: unknown) {
@@ -56,239 +45,93 @@ export function PairingScreen() {
   const displayError = localError || error;
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
-      style={{ background: "var(--surface-900)" }}
-    >
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.04] anim-float"
-          style={{
-            background: "radial-gradient(circle, var(--primary-500), transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.03] anim-float"
-          style={{
-            background: "radial-gradient(circle, var(--accent-300), transparent 70%)",
-            animationDelay: "3s",
-          }}
-        />
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Header */}
-        <div className="text-center mb-8 anim-fade-up">
-          <div
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center relative"
-            style={{
-              background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(56,189,248,0.05))",
-              border: "1px solid rgba(59,130,246,0.2)",
-              boxShadow: "var(--shadow-glow-lg)",
-            }}
-          >
-            <Bus className="w-10 h-10" style={{ color: "var(--primary-400)" }} />
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-muted/30">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary flex items-center justify-center">
+            <Bus className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1
-            className="text-3xl font-bold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Bus<span className="text-gradient">Track</span>
-          </h1>
-          <p className="text-sm mt-2" style={{ color: "var(--text-tertiary)" }}>
-            Device Pairing — First Time Setup
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">Bus<span className="text-primary">Track</span></h1>
+          <p className="text-sm text-muted-foreground mt-1">Device Pairing — First Time Setup</p>
         </div>
 
-        {/* Card */}
-        <div
-          className="p-8 anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-xl)",
-            boxShadow: "var(--shadow-lg)",
-          }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Pairing Code */}
+        <div className="rounded-lg border bg-card shadow-sm p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                className="block text-[10px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Pairing Code
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Pairing Code</label>
               <input
-                className="w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 font-mono tracking-widest text-center text-lg"
-                style={{
-                  background: "var(--surface-700)",
-                  border: "1px solid var(--border-subtle)",
-                  color: "var(--text-primary)",
-                }}
+                className="w-full px-3 py-2 rounded-md border bg-background text-foreground text-sm outline-none focus:ring-2 focus:ring-ring transition-all font-mono tracking-widest text-center text-lg"
                 placeholder="BUS-XXXX-XXXX"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 maxLength={14}
                 required
                 autoFocus
-                onFocus={(e) => {
-                  e.target.style.border = "1px solid var(--primary-500)";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = "1px solid var(--border-subtle)";
-                  e.target.style.boxShadow = "none";
-                }}
               />
             </div>
 
-            {/* Password */}
             <div>
-              <label
-                className="block text-[10px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Set Dashboard Password
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Set Dashboard Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3.5 pr-12 rounded-xl text-sm outline-none transition-all duration-200"
-                  style={{
-                    background: "var(--surface-700)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                  }}
+                  className="w-full px-3 py-2 pr-10 rounded-md border bg-background text-foreground text-sm outline-none focus:ring-2 focus:ring-ring transition-all"
                   placeholder="Min 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  onFocus={(e) => {
-                    e.target.style.border = "1px solid var(--primary-500)";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.border = "1px solid var(--border-subtle)";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 cursor-pointer transition-colors"
-                  style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "var(--text-secondary)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "var(--text-muted)";
-                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div>
-              <label
-                className="block text-[10px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Confirm Password
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Confirm Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200"
-                  style={{
-                    background: "var(--surface-700)",
-                    border: `1px solid ${
-                      confirmPassword && confirmPassword !== password
-                        ? "var(--danger)"
-                        : "var(--border-subtle)"
-                    }`,
-                    color: "var(--text-primary)",
-                  }}
+                  className="w-full px-3 py-2 rounded-md border bg-background text-foreground text-sm outline-none focus:ring-2 focus:ring-ring transition-all"
+                  style={{ borderColor: confirmPassword && confirmPassword !== password ? "var(--danger)" : undefined }}
                   placeholder="Re-enter password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={6}
-                  onFocus={(e) => {
-                    e.target.style.border = "1px solid var(--primary-500)";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.border =
-                      confirmPassword && confirmPassword !== password
-                        ? "1px solid var(--danger)"
-                        : "1px solid var(--border-subtle)";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
-                <Lock
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
-                  style={{ color: "var(--text-muted)" }}
-                />
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               </div>
             </div>
 
-            {/* Error */}
             {displayError && (
-              <div
-                className="px-4 py-3 rounded-xl text-sm font-medium"
-                style={{
-                  background: "var(--danger-dim)",
-                  border: "1px solid var(--danger-border)",
-                  color: "var(--danger)",
-                }}
-              >
+              <div className="px-3 py-2 rounded-md text-sm bg-danger-bg text-danger border border-danger-border">
                 {displayError}
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, var(--primary-600), var(--primary-500))",
-                color: "#fff",
-                border: "1px solid rgba(59,130,246,0.3)",
-                boxShadow: "0 4px 20px rgba(59,130,246,0.3)",
-              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {loading ? (
-                <Loader2 className="w-5 h-5" style={{ animation: "spin 0.8s linear infinite" }} />
-              ) : (
-                "Pair Device"
-              )}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Pair Device"}
             </button>
           </form>
 
-          {/* Timer */}
-          <div className="mt-4 text-center">
-            <p
-              className="text-xs font-medium"
-              style={{
-                color: timeLeft < 60 ? "var(--danger)" : "var(--text-muted)",
-              }}
-            >
+          <div className="mt-3 text-center">
+            <p className="text-xs" style={{ color: timeLeft < 60 ? "var(--danger)" : "hsl(var(--muted-foreground))" }}>
               Code expires in {formatTime(timeLeft)}
             </p>
           </div>
         </div>
 
-        {/* Security note */}
-        <div
-          className="mt-6 flex items-center justify-center gap-2 text-[10px]"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Secured with end-to-end encryption</span>
         </div>

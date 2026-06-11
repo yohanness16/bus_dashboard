@@ -17,14 +17,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        style={{
-          background: "var(--surface-900)",
-          color: "var(--text-primary)",
-          fontFamily: "var(--font-body)",
-        }}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-background text-foreground font-sans">
         <ToastProvider>
           <AuthProvider>{children}</AuthProvider>
         </ToastProvider>

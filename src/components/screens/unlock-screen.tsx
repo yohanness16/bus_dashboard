@@ -16,7 +16,6 @@ export function UnlockScreen() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (locked) return;
-
     try {
       await unlockBus(password);
       setFailCount(0);
@@ -33,141 +32,53 @@ export function UnlockScreen() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
-      style={{ background: "var(--surface-900)" }}
-    >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full opacity-[0.04] anim-float"
-          style={{
-            background: "radial-gradient(circle, var(--primary-500), transparent 70%)",
-          }}
-        />
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Header */}
-        <div className="text-center mb-8 anim-fade-up">
-          <div
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center relative"
-            style={{
-              background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(56,189,248,0.05))",
-              border: "1px solid rgba(59,130,246,0.2)",
-              boxShadow: "var(--shadow-glow-lg)",
-            }}
-          >
-            <Bus className="w-10 h-10" style={{ color: "var(--primary-400)" }} />
-            <div
-              className="absolute -top-1 -right-1 w-4 h-4 rounded-full"
-              style={{
-                background: "var(--primary-500)",
-                boxShadow: "0 0 12px var(--primary-500)",
-                animation: "pulseGlow 2s infinite",
-              }}
-            />
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-muted/30">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary flex items-center justify-center relative">
+            <Bus className="w-7 h-7 text-primary-foreground" />
+            <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-primary animate-pulse-dot" />
           </div>
-          <h1
-            className="text-3xl font-bold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Bus<span className="text-gradient">Track</span>
-          </h1>
+          <h1 className="text-2xl font-bold text-foreground">Bus<span className="text-primary">Track</span></h1>
           {session.bd_plate && (
-            <p
-              className="text-sm mt-2 font-medium"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Bus — Plate: {session.bd_plate}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">Bus — Plate: {session.bd_plate}</p>
           )}
         </div>
 
-        {/* Card */}
-        <div
-          className="p-8 anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-xl)",
-            boxShadow: "var(--shadow-lg)",
-          }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="rounded-lg border bg-card shadow-sm p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                className="block text-[10px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Dashboard Password
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Dashboard Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3.5 pl-11 pr-12 rounded-xl text-sm outline-none transition-all duration-200"
-                  style={{
-                    background: "var(--surface-700)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                  }}
+                  className="w-full px-3 py-2 pl-10 pr-10 rounded-md border bg-background text-foreground text-sm outline-none focus:ring-2 focus:ring-ring transition-all"
                   placeholder="Enter device password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoFocus
                   disabled={locked}
-                  onFocus={(e) => {
-                    e.target.style.border = "1px solid var(--primary-500)";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.border = "1px solid var(--border-subtle)";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
-                <Lock
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
-                  style={{ color: "var(--text-muted)" }}
-                />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 cursor-pointer transition-colors"
-                  style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "var(--text-secondary)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "var(--text-muted)";
-                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             {locked && (
-              <div
-                className="px-4 py-3 rounded-xl text-sm font-medium text-center"
-                style={{
-                  background: "var(--warning-dim)",
-                  border: "1px solid var(--warning-border)",
-                  color: "var(--warning)",
-                }}
-              >
+              <div className="px-3 py-2 rounded-md text-sm text-center bg-warning-bg text-warning border border-warning-border">
                 Too many attempts. Locked for 30 seconds.
               </div>
             )}
 
             {error && !locked && (
-              <div
-                className="px-4 py-3 rounded-xl text-sm font-medium"
-                style={{
-                  background: "var(--danger-dim)",
-                  border: "1px solid var(--danger-border)",
-                  color: "var(--danger)",
-                }}
-              >
+              <div className="px-3 py-2 rounded-md text-sm bg-danger-bg text-danger border border-danger-border">
                 {error}
               </div>
             )}
@@ -175,28 +86,14 @@ export function UnlockScreen() {
             <button
               type="submit"
               disabled={loading || locked}
-              className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, var(--primary-600), var(--primary-500))",
-                color: "#fff",
-                border: "1px solid rgba(59,130,246,0.3)",
-                boxShadow: "0 4px 20px rgba(59,130,246,0.3)",
-              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {loading ? (
-                <Loader2 className="w-5 h-5" style={{ animation: "spin 0.8s linear infinite" }} />
-              ) : (
-                "Unlock Bus Dashboard"
-              )}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unlock Bus Dashboard"}
             </button>
           </form>
         </div>
 
-        {/* Security note */}
-        <div
-          className="mt-6 flex items-center justify-center gap-2 text-[10px]"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Protected device access</span>
         </div>

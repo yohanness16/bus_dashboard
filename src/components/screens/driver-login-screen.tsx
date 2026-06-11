@@ -23,166 +23,64 @@ export function DriverLoginScreen() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
-      style={{ background: "var(--surface-900)" }}
-    >
-      {/* Background Glows */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.04] anim-float"
-          style={{
-            background: "radial-gradient(circle, var(--primary-500), transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.03] anim-float"
-          style={{
-            background: "radial-gradient(circle, var(--accent-300), transparent 70%)",
-            animationDelay: "3s",
-          }}
-        />
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-muted/30">
+      <div className="w-full max-w-sm">
         {/* Header */}
-        <div className="text-center mb-8 anim-fade-up">
-          <div
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center relative"
-            style={{
-              background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(56,189,248,0.05))",
-              border: "1px solid rgba(59,130,246,0.2)",
-              boxShadow: "var(--shadow-glow-lg)",
-            }}
-          >
-            <Bus className="w-10 h-10" style={{ color: "var(--primary-400)" }} />
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-primary flex items-center justify-center">
+            <Bus className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1
-            className="text-3xl font-bold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Bus
-            <span className="text-gradient">Track</span>
+          <h1 className="text-2xl font-bold text-foreground">
+            Bus<span className="text-primary">Track</span>
           </h1>
           {session.bd_plate && (
-            <p
-              className="text-sm mt-2 font-medium"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Bus — Plate: {session.bd_plate}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">Bus — Plate: {session.bd_plate}</p>
           )}
         </div>
 
         {/* Card */}
-        <div
-          className="p-8 anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-xl)",
-            boxShadow: "var(--shadow-lg)",
-          }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Username */}
+        <div className="rounded-lg border bg-card shadow-sm p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                className="block text-[10px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Username
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Username</label>
               <div className="relative">
                 <input
                   type="text"
-                  className="w-full px-4 py-3.5 pl-11 rounded-xl text-sm outline-none transition-all duration-200"
-                  style={{
-                    background: "var(--surface-700)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                  }}
+                  className="w-full px-3 py-2 pl-10 rounded-md border bg-background text-foreground text-sm outline-none focus:ring-2 focus:ring-ring transition-all"
                   placeholder="john.doe"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   autoFocus
-                  onFocus={(e) => {
-                    e.target.style.border = "1px solid var(--primary-500)";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.border = "1px solid var(--border-subtle)";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
-                <User
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
-                  style={{ color: "var(--text-muted)" }}
-                />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               </div>
             </div>
 
-            {/* Password */}
             <div>
-              <label
-                className="block text-[10px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Password
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3.5 pl-11 pr-12 rounded-xl text-sm outline-none transition-all duration-200"
-                  style={{
-                    background: "var(--surface-700)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                  }}
+                  className="w-full px-3 py-2 pl-10 pr-10 rounded-md border bg-background text-foreground text-sm outline-none focus:ring-2 focus:ring-ring transition-all"
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  onFocus={(e) => {
-                    e.target.style.border = "1px solid var(--primary-500)";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.border = "1px solid var(--border-subtle)";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
-                <Lock
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
-                  style={{ color: "var(--text-muted)" }}
-                />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 cursor-pointer transition-colors"
-                  style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "var(--text-secondary)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "var(--text-muted)";
-                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             {error && (
-              <div
-                className="px-4 py-3 rounded-xl text-sm font-medium"
-                style={{
-                  background: "var(--danger-dim)",
-                  border: "1px solid var(--danger-border)",
-                  color: "var(--danger)",
-                }}
-              >
+              <div className="px-3 py-2 rounded-md text-sm bg-danger-bg text-danger border border-danger-border">
                 {error}
               </div>
             )}
@@ -190,28 +88,14 @@ export function DriverLoginScreen() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, var(--primary-600), var(--primary-500))",
-                color: "#fff",
-                border: "1px solid rgba(59,130,246,0.3)",
-                boxShadow: "0 4px 20px rgba(59,130,246,0.3)",
-              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {loading ? (
-                <Loader2 className="w-5 h-5" style={{ animation: "spin 0.8s linear infinite" }} />
-              ) : (
-                "Login as Driver"
-              )}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Login as Driver"}
             </button>
           </form>
         </div>
 
-        {/* Security note */}
-        <div
-          className="mt-6 flex items-center justify-center gap-2 text-[10px]"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Authorized personnel only</span>
         </div>
