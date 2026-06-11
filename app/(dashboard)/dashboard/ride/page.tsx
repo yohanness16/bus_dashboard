@@ -64,7 +64,9 @@ export default function ActiveRidePage() {
   const [endingRide, setEndingRide] = useState(false);
 
   const { status } = useBusWebSocket({
-    token: session.bd_bus_token || null,
+    // Use driver_token (user JWT) for WebSocket — bd_bus_token is a
+    // bus_dashboard type token which the WebSocket endpoint rejects.
+    token: session.driver_token || session.bd_bus_token || null,
     routeId: session.route_id,
     onMessage: (msg) => {
       if (msg.type === "vehicle_position") {
@@ -135,15 +137,32 @@ export default function ActiveRidePage() {
   };
 
   const handleEndRide = async () => {
-    if (!assignment) return;
     setEndingRide(true);
     try {
-      await assignmentApi.end(assignment.id);
+      // If we don't have the assignment in state, fetch it first
+      let aid = assignment?.id;
+      if (!aid) {
+        const res = await assignmentApi.getCurrent();
+        if (res.data?.id) {
+          aid = res.data.id;
+          setAssignment(res.data);
+        } else {
+          alert("No active assignment found. You may already have ended this ride.");
+          return;
+        }
+      }
+      await assignmentApi.end(aid!);
       setIsRideActive(false);
       setAssignment(null);
       router.push("/dashboard/post-ride");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to end ride";
+      let msg = "Failed to end ride";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        msg = axiosErr.response?.data?.detail || msg;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
       alert(msg);
     } finally {
       setEndingRide(false);

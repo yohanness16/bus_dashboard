@@ -14,7 +14,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [wsStatus, setWsStatus] = useState<ConnectionStatus>("idle");
 
   const { status } = useBusWebSocket({
-    token: session.bd_bus_token || null,
+    // Use driver_token (user JWT) for WebSocket — bd_bus_token is a
+    // bus_dashboard type token which the WebSocket endpoint rejects.
+    token: session.driver_token || session.bd_bus_token || null,
     routeId: session.route_id,
   });
 
