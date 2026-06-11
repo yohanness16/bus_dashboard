@@ -13,7 +13,6 @@ import {
   Clock,
   ArrowRight,
   Loader2,
-  Navigation,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/components/shared/toast-stack";
@@ -41,10 +40,7 @@ export function PostRideScreen() {
         const histRes = await tripHistoryApi.getByAssignment(assignRes.data.id);
         setHistory(histRes.data || []);
       } else if (session.vehicle_id) {
-        const histRes = await tripHistoryApi.getByVehicle(
-          session.vehicle_id,
-          20
-        );
+        const histRes = await tripHistoryApi.getByVehicle(session.vehicle_id, 20);
         setHistory(histRes.data || []);
       }
     } catch {
@@ -65,9 +61,7 @@ export function PostRideScreen() {
   const duration = (() => {
     if (!assignment?.start_time) return "—";
     const start = new Date(assignment.start_time);
-    const end = assignment.end_time
-      ? new Date(assignment.end_time)
-      : new Date();
+    const end = assignment.end_time ? new Date(assignment.end_time) : new Date();
     const diff = Math.floor((end.getTime() - start.getTime()) / 1000);
     const h = Math.floor(diff / 3600);
     const m = Math.floor((diff % 3600) / 60);
@@ -79,25 +73,16 @@ export function PostRideScreen() {
 
   const avgCrowd =
     history.length > 0
-      ? history.reduce((sum, h) => sum + (h.occupancy_level || 0), 0) /
-        history.length
+      ? history.reduce((sum, h) => sum + (h.occupancy_level || 0), 0) / history.length
       : 0;
 
-  const crowdLabel =
-    avgCrowd < 0.5 ? "Low" : avgCrowd < 1.5 ? "Medium" : "High";
+  const crowdLabel = avgCrowd < 0.5 ? "Low" : avgCrowd < 1.5 ? "Medium" : "High";
   const crowdColor =
-    avgCrowd < 0.5
-      ? "var(--success)"
-      : avgCrowd < 1.5
-      ? "var(--warning)"
-      : "var(--danger)";
+    avgCrowd < 0.5 ? "var(--success)" : avgCrowd < 1.5 ? "var(--warning)" : "var(--danger)";
 
   const formatTime = (ts?: string) => {
     if (!ts) return "—";
-    return new Date(ts).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const formatDuration = (s?: number) => {
@@ -108,15 +93,12 @@ export function PostRideScreen() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "var(--surface-900)" }}
-    >
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--surface-900)" }}>
       {/* Top Bar */}
       <header
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{
-          background: "var(--surface-800)",
+          background: "var(--surface-850)",
           borderBottom: "1px solid var(--border-subtle)",
         }}
       >
@@ -125,25 +107,27 @@ export function PostRideScreen() {
             className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: "rgba(59,130,246,0.15)" }}
           >
-            <Bus
-              className="w-4 h-4"
-              style={{ color: "var(--primary-400)" }}
-            />
+            <Bus className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
           </div>
-          <span
-            className="text-sm font-bold"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
             Trip Summary
           </span>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:opacity-80"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200"
           style={{
             background: "var(--danger-dim)",
             border: "1px solid var(--danger-border)",
             color: "var(--danger)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--danger)";
+            e.currentTarget.style.color = "#fff";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "var(--danger-dim)";
+            e.currentTarget.style.color = "var(--danger)";
           }}
         >
           <LogOut className="w-3.5 h-3.5" />
@@ -152,13 +136,12 @@ export function PostRideScreen() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-5xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-6xl mx-auto w-full">
         {/* Completion Banner */}
         <div
-          className="rounded-2xl p-6 text-center anim-fade-up"
+          className="surface-card p-6 text-center anim-fade-up"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(52,211,153,0.1), rgba(16,185,129,0.05))",
+            background: "linear-gradient(135deg, rgba(52,211,153,0.1), rgba(16,185,129,0.05))",
             border: "1px solid var(--success-border)",
           }}
         >
@@ -166,10 +149,7 @@ export function PostRideScreen() {
             className="w-12 h-12 mx-auto mb-3"
             style={{ color: "var(--success)" }}
           />
-          <h2
-            className="text-xl font-bold"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
             Ride Completed
           </h2>
           {route && (
@@ -200,21 +180,9 @@ export function PostRideScreen() {
           className="grid grid-cols-2 md:grid-cols-4 gap-3 anim-fade-up"
           style={{ animationDelay: "50ms" }}
         >
-          <div
-            className="flex flex-col items-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <Gauge
-              className="w-5 h-5 mb-2"
-              style={{ color: "var(--primary-400)" }}
-            />
-            <p
-              className="text-2xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
+          <div className="flex flex-col items-center p-4 surface-card">
+            <Gauge className="w-5 h-5 mb-2" style={{ color: "var(--primary-400)" }} />
+            <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
               —
             </p>
             <p
@@ -225,21 +193,9 @@ export function PostRideScreen() {
             </p>
           </div>
 
-          <div
-            className="flex flex-col items-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <MapPin
-              className="w-5 h-5 mb-2"
-              style={{ color: "var(--success)" }}
-            />
-            <p
-              className="text-2xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
+          <div className="flex flex-col items-center p-4 surface-card">
+            <MapPin className="w-5 h-5 mb-2" style={{ color: "var(--success)" }} />
+            <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
               {stopsPassed}/{totalStops}
             </p>
             <p
@@ -250,21 +206,9 @@ export function PostRideScreen() {
             </p>
           </div>
 
-          <div
-            className="flex flex-col items-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <Users
-              className="w-5 h-5 mb-2"
-              style={{ color: crowdColor }}
-            />
-            <p
-              className="text-2xl font-bold"
-              style={{ color: crowdColor }}
-            >
+          <div className="flex flex-col items-center p-4 surface-card">
+            <Users className="w-5 h-5 mb-2" style={{ color: crowdColor }} />
+            <p className="text-2xl font-bold" style={{ color: crowdColor }}>
               {crowdLabel}
             </p>
             <p
@@ -275,21 +219,9 @@ export function PostRideScreen() {
             </p>
           </div>
 
-          <div
-            className="flex flex-col items-center p-4 rounded-2xl"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <Route
-              className="w-5 h-5 mb-2"
-              style={{ color: "var(--accent-300)" }}
-            />
-            <p
-              className="text-2xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
+          <div className="flex flex-col items-center p-4 surface-card">
+            <Route className="w-5 h-5 mb-2" style={{ color: "var(--accent-300)" }} />
+            <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
               — km
             </p>
             <p
@@ -303,12 +235,8 @@ export function PostRideScreen() {
 
         {/* Trip History Table */}
         <div
-          className="rounded-2xl overflow-hidden anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            animationDelay: "100ms",
-          }}
+          className="surface-card overflow-hidden anim-fade-up"
+          style={{ animationDelay: "100ms" }}
         >
           <div
             className="px-5 py-4"
@@ -326,10 +254,7 @@ export function PostRideScreen() {
             <div className="p-8 flex items-center justify-center">
               <Loader2
                 className="w-6 h-6"
-                style={{
-                  color: "var(--primary-400)",
-                  animation: "spin 0.8s linear infinite",
-                }}
+                style={{ color: "var(--primary-400)", animation: "spin 0.8s linear infinite" }}
               />
             </div>
           ) : history.length > 0 ? (
@@ -375,10 +300,15 @@ export function PostRideScreen() {
                       key={h.id}
                       style={{
                         borderTop: "1px solid var(--border-subtle)",
-                        background:
-                          idx % 2 === 0
-                            ? "transparent"
-                            : "rgba(30,41,59,0.3)",
+                        background: idx % 2 === 0 ? "transparent" : "rgba(30,41,59,0.3)",
+                        transition: "background 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "var(--surface-700)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          idx % 2 === 0 ? "transparent" : "rgba(30,41,59,0.3)";
                       }}
                     >
                       <td
@@ -401,7 +331,7 @@ export function PostRideScreen() {
                       </td>
                       <td className="text-center px-3 py-3">
                         <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase"
+                          className="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase"
                           style={{
                             background:
                               (h.occupancy_level || 0) === 0
@@ -428,9 +358,7 @@ export function PostRideScreen() {
                         className="text-center px-3 py-3 tabular-nums"
                         style={{ color: "var(--text-muted)" }}
                       >
-                        {h.heuristic_eta
-                          ? formatDuration(h.heuristic_eta)
-                          : "—"}
+                        {h.heuristic_eta ? formatDuration(h.heuristic_eta) : "—"}
                       </td>
                     </tr>
                   ))}
@@ -454,7 +382,7 @@ export function PostRideScreen() {
         <div className="pt-2 pb-6 anim-fade-up" style={{ animationDelay: "150ms" }}>
           <button
             onClick={handleStartNewRide}
-            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] cursor-pointer"
             style={{
               background: "linear-gradient(135deg, #34D399, #10B981)",
               color: "#fff",
