@@ -1,7 +1,7 @@
 "use client";
-
 import { Vehicle } from "@/types";
-import { Bus, Calendar, Hash, Zap } from "lucide-react";
+import { Bus, Hash, Zap, Calendar } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface VehicleStatsProps {
   vehicle: Vehicle | null;
@@ -11,80 +11,50 @@ interface VehicleStatsProps {
 export function VehicleStats({ vehicle, loading }: VehicleStatsProps) {
   if (loading) {
     return (
-      <div className="card">
-        <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-4 skeleton rounded" />
-          ))}
-        </div>
-      </div>
+      <Card>
+        <div className="space-y-3">{[1, 2, 3, 4].map((i) => <div key={i} className="h-4 skeleton rounded" />)}</div>
+      </Card>
     );
   }
 
   if (!vehicle) {
     return (
-      <div className="card">
-        <p className="text-sm text-text-muted text-center py-4">
-          No vehicle data available
-        </p>
-      </div>
+      <Card>
+        <p className="text-sm text-content-tertiary text-center py-4">No vehicle data available</p>
+      </Card>
     );
   }
 
   const stats = [
-    {
-      icon: Bus,
-      label: "Plate Number",
-      value: vehicle.plate_number,
-    },
-    {
-      icon: Hash,
-      label: "Vehicle ID",
-      value: `#${vehicle.id}`,
-    },
-    {
-      icon: Zap,
-      label: "Device ID",
-      value: vehicle.device_id?.slice(0, 12) + "..." || "N/A",
-    },
-    {
-      icon: Calendar,
-      label: "Bus Type",
-      value: vehicle.bus_type || "Standard",
-    },
+    { icon: Bus, label: "Plate Number", value: vehicle.plate_number },
+    { icon: Hash, label: "Vehicle ID", value: `#${vehicle.id}` },
+    { icon: Zap, label: "Device ID", value: vehicle.device_id?.slice(0, 12) + "..." || "N/A" },
+    { icon: Calendar, label: "Bus Type", value: vehicle.bus_type || "Standard" },
   ];
 
   return (
-    <div className="card">
+    <Card>
       <div className="flex items-center gap-2 mb-4">
-        <Bus className="w-5 h-5 text-accent" />
-        <h3 className="text-sm font-medium text-text-secondary">
-          Vehicle Info
-        </h3>
+        <Bus className="w-4 h-4 text-primary-600" />
+        <h3 className="text-sm font-medium text-content-secondary">Vehicle Info</h3>
       </div>
-
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {stats.map((stat) => (
           <div key={stat.label} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <stat.icon className="w-4 h-4 text-text-muted" />
-              <span className="text-xs text-text-muted">{stat.label}</span>
+              <stat.icon className="w-3.5 h-3.5 text-content-tertiary" />
+              <span className="text-[11px] text-content-tertiary">{stat.label}</span>
             </div>
-            <span className="text-sm font-mono font-medium text-text-primary">
-              {stat.value}
-            </span>
+            <span className="text-xs font-mono font-medium text-content">{stat.value}</span>
           </div>
         ))}
-
-        <div className="pt-3 border-t border-border">
+        <div className="pt-2.5 border-t border-stroke">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-text-muted">Capacity</span>
-            <span className="text-sm font-mono font-medium text-text-primary">
-              {vehicle.capacity || "—"} seats
-            </span>
+            <span className="text-[11px] text-content-tertiary">Capacity</span>
+            <span className="text-xs font-mono font-medium text-content">{vehicle.capacity || "—"} seats</span>
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

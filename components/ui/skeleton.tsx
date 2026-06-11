@@ -9,12 +9,7 @@ interface SkeletonProps {
   height?: string;
 }
 
-export function Skeleton({
-  className,
-  variant = "text",
-  width,
-  height,
-}: SkeletonProps) {
+export function Skeleton({ className, variant = "text", width, height }: SkeletonProps) {
   const variants = {
     text: "h-4 rounded-md",
     circular: "rounded-full",
@@ -25,8 +20,8 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-bg-elevated",
-        "after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-white/5 after:to-transparent after:bg-[length:200%_100%] after:animate-shimmer",
+        "relative overflow-hidden bg-gray-100",
+        "after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-black/[0.03] after:to-transparent after:bg-[length:200%_100%] after:animate-shimmer",
         variants[variant],
         className
       )}
@@ -35,21 +30,11 @@ export function Skeleton({
   );
 }
 
-export function SkeletonText({
-  lines = 3,
-  className,
-}: {
-  lines?: number;
-  className?: string;
-}) {
+export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
   return (
     <div className={cn("space-y-2", className)}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          variant="text"
-          className={i === lines - 1 ? "w-3/4" : "w-full"}
-        />
+        <Skeleton key={i} variant="text" className={i === lines - 1 ? "w-3/4" : "w-full"} />
       ))}
     </div>
   );

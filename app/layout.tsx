@@ -18,7 +18,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#0F172A",
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({
@@ -27,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans bg-bg text-text-primary min-h-dvh`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans bg-surface-secondary text-content min-h-dvh`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

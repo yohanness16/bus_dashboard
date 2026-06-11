@@ -11,36 +11,11 @@ interface ConnectionStatusProps {
 
 export function ConnectionStatus({ status, compact = false }: ConnectionStatusProps) {
   const config = {
-    idle: {
-      icon: WifiOff,
-      label: "Idle",
-      variant: "default" as const,
-      dot: false,
-    },
-    connecting: {
-      icon: Loader2,
-      label: "Connecting",
-      variant: "warning" as const,
-      dot: true,
-    },
-    connected: {
-      icon: Wifi,
-      label: "Live",
-      variant: "success" as const,
-      dot: true,
-    },
-    disconnected: {
-      icon: WifiOff,
-      label: "Disconnected",
-      variant: "danger" as const,
-      dot: false,
-    },
-    error: {
-      icon: AlertTriangle,
-      label: "Error",
-      variant: "danger" as const,
-      dot: true,
-    },
+    idle: { icon: WifiOff, label: "Idle", variant: "default" as const, dot: false },
+    connecting: { icon: Loader2, label: "Connecting", variant: "warning" as const, dot: true },
+    connected: { icon: Wifi, label: "Live", variant: "success" as const, dot: true },
+    disconnected: { icon: WifiOff, label: "Offline", variant: "danger" as const, dot: false },
+    error: { icon: AlertTriangle, label: "Error", variant: "danger" as const, dot: true },
   };
 
   const { icon: Icon, label, variant, dot } = config[status];
@@ -48,18 +23,8 @@ export function ConnectionStatus({ status, compact = false }: ConnectionStatusPr
   if (compact) {
     return (
       <div className="flex items-center gap-2">
-        <Icon
-          className={`w-4 h-4 ${
-            status === "connected"
-              ? "text-success"
-              : status === "connecting"
-              ? "text-warning animate-spin"
-              : status === "error"
-              ? "text-destructive"
-              : "text-text-muted"
-          }`}
-        />
-        <span className="text-xs text-text-secondary">{label}</span>
+        <Icon className={`w-3.5 h-3.5 ${status === "connected" ? "text-success" : status === "connecting" ? "text-warning animate-spin" : status === "error" ? "text-danger" : "text-gray-400"}`} />
+        <span className="text-[11px] text-content-tertiary font-medium">{label}</span>
       </div>
     );
   }

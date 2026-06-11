@@ -5,56 +5,42 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   icon?: React.ReactNode;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant = "primary",
-      size = "md",
-      loading = false,
-      icon,
-      disabled,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, variant = "primary", size = "md", loading, icon, disabled, children, ...props }, ref) => {
     const variants = {
       primary:
-        "bg-gradient-to-r from-accent to-blue-500 text-white hover:from-accent-hover hover:to-blue-600 focus:ring-accent shadow-[0_0_30px_rgba(37,99,235,0.25)] hover:shadow-[0_0_40px_rgba(37,99,235,0.35)] border border-white/[0.08]",
+        "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow-md border border-transparent",
       secondary:
-        "bg-white/[0.06] text-text-primary hover:bg-white/[0.1] focus:ring-bg-elevated border border-white/[0.08] backdrop-blur-sm",
+        "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400 border border-gray-200",
       danger:
-        "bg-gradient-to-r from-destructive to-red-500 text-white hover:from-red-700 hover:to-red-600 focus:ring-destructive shadow-[0_0_20px_rgba(220,38,38,0.2)] border border-white/[0.08]",
+        "bg-danger text-white hover:bg-red-600 focus:ring-danger shadow-sm border border-transparent",
       ghost:
-        "bg-transparent text-text-secondary hover:bg-white/[0.06] hover:text-text-primary border border-transparent",
+        "bg-transparent text-content-secondary hover:bg-gray-100 hover:text-content border border-transparent",
+      outline:
+        "bg-transparent text-primary-600 hover:bg-primary-50 focus:ring-primary-500 border border-primary-200",
     };
 
     const sizes = {
-      sm: "px-4 py-2 text-xs",
-      md: "px-6 py-3 text-sm",
-      lg: "px-8 py-4 text-base",
+      sm: "px-3 py-1.5 text-xs",
+      md: "px-5 py-2.5 text-sm",
+      lg: "px-7 py-3.5 text-base",
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          "relative inline-flex items-center justify-center gap-2.5 rounded-xl font-semibold",
-          "transition-all duration-300 ease-out",
-          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg",
+          "relative inline-flex items-center justify-center gap-2 rounded-xl font-medium",
+          "transition-all duration-200 ease-out",
+          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
           "cursor-pointer active:scale-[0.97]",
-          "overflow-hidden",
-          // Shimmer overlay on hover
-          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.08] before:to-transparent",
-          "before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
           variants[variant],
           sizes[size],
           className
@@ -62,17 +48,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         {...props}
       >
-        {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : icon ? (
-          <span className="relative z-10">{icon}</span>
-        ) : null}
-        <span className="relative z-10">{children}</span>
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : icon ? icon : null}
+        {children}
       </button>
     );
   }
 );
 
 Button.displayName = "Button";
-
 export { Button };

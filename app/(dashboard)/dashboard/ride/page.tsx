@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { OccupancyGauge } from "@/components/dashboard/occupancy-gauge";
 import { SpeedIndicator } from "@/components/dashboard/speed-indicator";
 import { RouteProgress } from "@/components/dashboard/route-progress";
@@ -14,7 +15,7 @@ import { ConnectionStatus } from "@/components/dashboard/connection-status";
 import { useCurrentTime } from "@/hooks/use-current-time";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useBusWebSocket } from "@/hooks/use-bus-websocket";
-import { vehicleApi, assignmentApi } from "@/lib/api";
+import { vehicleApi, assignmentApi, routeApi } from "@/lib/api";
 import { findNearestStopIndex } from "@/lib/nearest-stop";
 import { formatTime, formatETA } from "@/lib/utils";
 import {
@@ -26,26 +27,29 @@ import {
   Navigation,
   AlertTriangle,
   Loader2,
+  Route,
 } from "lucide-react";
 import type {
   ConnectionStatus as WSStatus,
   WSVehiclePosition,
-  VehiclePosition,
   Assignment,
+  RouteWithStops,
 } from "@/types";
 
-// Dynamic import for map (no SSR)
 const MapView = dynamic(
   () => import("@/components/dashboard/map-view").then((m) => m.MapView),
-  { ssr: false, loading: () => (
-    <div className="w-full h-[400px] rounded-2xl bg-bg-surface border border-border flex items-center justify-center">
-      <Loader2 className="w-6 h-6 text-accent animate-spin" />
-    </div>
-  )}
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[400px] rounded-2xl bg-gray-50 border border-stroke flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+      </div>
+    ),
+  }
 );
 
 export default function ActiveRidePage() {
-  const { session, vehicle, route, loadPreRideData, setScreen } = useAuth();
+  const { session, vehicle, route: preAssignedRoute, loadPreRideData } = useAuth();
   const router = useRouter();
   const now = useCurrentTime();
   const { position: geoPosition } = useGeolocation();
@@ -53,29 +57,21 @@ export default function ActiveRidePage() {
   const [wsStatus, setWsStatus] = useState<WSStatus>("idle");
   const [vehiclePos, setVehiclePos] = useState<WSVehiclePosition | null>(null);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
+  const [route, setRoute] = useState<RouteWithStops | null>(null);
   const [currentStopIdx, setCurrentStopIdx] = useState(0);
   const [nextEta, setNextEta] = useState<number | undefined>();
   const [isRideActive, setIsRideActive] = useState(false);
   const [endingRide, setEndingRide] = useState(false);
 
-  // WebSocket
-  const { status, sendMessage } = useBusWebSocket({
+  const { status } = useBusWebSocket({
     token: session.bd_bus_token || null,
     routeId: session.route_id,
     onMessage: (msg) => {
       if (msg.type === "vehicle_position") {
         setVehiclePos(msg);
-
-        // Find nearest stop
         if (route?.stops && route.stops.length > 0) {
-          const nearestIdx = findNearestStopIndex(
-            msg.lat,
-            msg.lon,
-            route.stops
-          );
+          const nearestIdx = findNearestStopIndex(msg.lat, msg.lon, route.stops);
           setCurrentStopIdx(nearestIdx);
-
-          // Get ETA to next stop
           if (msg.eta_payloads) {
             const nextStop = route.stops[nearestIdx + 1];
             if (nextStop && msg.eta_payloads[nextStop.name]) {
@@ -91,7 +87,6 @@ export default function ActiveRidePage() {
     setWsStatus(status);
   }, [status]);
 
-  // Load initial data
   useEffect(() => {
     loadPreRideData();
     loadCurrentAssignment();
@@ -103,6 +98,11 @@ export default function ActiveRidePage() {
       if (res.data) {
         setAssignment(res.data);
         setIsRideActive(true);
+        // Load the route for this assignment
+        if (res.data.route_id) {
+          const rRes = await routeApi.getRoute(res.data.route_id);
+          setRoute(rRes.data);
+        }
       }
     } catch {
       // No active assignment
@@ -112,21 +112,13 @@ export default function ActiveRidePage() {
   // Send telemetry
   useEffect(() => {
     if (!geoPosition || !session.bd_device_id || !isRideActive) return;
-
-    const sendTelemetry = async () => {
+    const send = async () => {
       try {
-        await vehicleApi.sendTelemetry(
-          session.bd_device_id!,
-          geoPosition.lat,
-          geoPosition.lon
-        );
-      } catch {
-        // non-fatal
-      }
+        await vehicleApi.sendTelemetry(session.bd_device_id!, geoPosition.lat, geoPosition.lon, geoPosition.speed ?? undefined);
+      } catch { /* non-fatal */ }
     };
-
-    sendTelemetry();
-    const interval = setInterval(sendTelemetry, 5000);
+    send();
+    const interval = setInterval(send, 5000);
     return () => clearInterval(interval);
   }, [geoPosition, session.bd_device_id, isRideActive]);
 
@@ -162,19 +154,19 @@ export default function ActiveRidePage() {
     ? [vehiclePos.lat, vehiclePos.lon]
     : geoPosition
     ? [geoPosition.lat, geoPosition.lon]
-    : [9.0222, 38.7468]; // Default: Addis Ababa
+    : [9.0222, 38.7468];
 
   const routePolyline: [number, number][] = route?.stops
     ? route.stops.map((s) => [s.lat, s.lon] as [number, number])
     : [];
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-[1400px] mx-auto space-y-5 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-xl font-bold text-text-primary tracking-tight flex items-center gap-2">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
               {isRideActive ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
@@ -185,7 +177,7 @@ export default function ActiveRidePage() {
               )}
             </h1>
             {route && (
-              <p className="text-sm text-text-secondary mt-0.5">
+              <p className="text-sm text-gray-500 mt-0.5">
                 Route {route.route_number}
                 {route.name ? ` — ${route.name}` : ""}
               </p>
@@ -195,7 +187,7 @@ export default function ActiveRidePage() {
         <div className="flex items-center gap-4">
           <ConnectionStatus status={wsStatus} />
           <div className="text-right">
-            <p className="text-base font-mono font-bold text-text-primary">
+            <p className="text-base font-bold text-gray-900 font-mono">
               {now ? formatTime(now) : "--:--:--"}
             </p>
           </div>
@@ -203,9 +195,9 @@ export default function ActiveRidePage() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column — Stats */}
-        <div className="lg:col-span-3 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left — Stats */}
+        <div className="lg:col-span-3 space-y-5">
           <SpeedIndicator speed={vehiclePos?.speed || 0} />
           <OccupancyGauge
             level={vehiclePos?.occupancy_level ?? 0}
@@ -218,19 +210,15 @@ export default function ActiveRidePage() {
         {/* Center — Map */}
         <div className="lg:col-span-6">
           <Card className="p-0 overflow-hidden">
-            <div className="p-4 border-b border-border flex items-center justify-between">
+            <div className="p-4 border-b border-stroke flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-accent" />
-                <h3 className="text-sm font-medium text-text-secondary">
-                  Live Map
-                </h3>
+                <Navigation className="w-4 h-4 text-primary-600" />
+                <h3 className="text-sm font-medium text-content-secondary">Live Map</h3>
               </div>
               {vehiclePos && (
-                <div className="flex items-center gap-3 text-xs text-text-muted">
-                  <span className="font-mono">
-                    {vehiclePos.lat.toFixed(5)}, {vehiclePos.lon.toFixed(5)}
-                  </span>
-                </div>
+                <span className="text-[10px] text-content-tertiary font-mono">
+                  {vehiclePos.lat.toFixed(5)}, {vehiclePos.lon.toFixed(5)}
+                </span>
               )}
             </div>
             <div className="p-2">
@@ -247,31 +235,20 @@ export default function ActiveRidePage() {
           {/* Action Buttons */}
           <div className="mt-4 flex justify-center gap-4">
             {!isRideActive ? (
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleStartRide}
-                className="min-w-[200px]"
-                icon={<Play className="w-5 h-5" />}
-              >
+              <Button variant="primary" size="lg" onClick={handleStartRide} className="min-w-[200px]">
+                <Play className="w-5 h-5" />
                 Start Ride
               </Button>
             ) : (
-              <Button
-                variant="danger"
-                size="lg"
-                onClick={handleEndRide}
-                loading={endingRide}
-                className="min-w-[200px]"
-                icon={<Square className="w-5 h-5" />}
-              >
+              <Button variant="danger" size="lg" onClick={handleEndRide} loading={endingRide} className="min-w-[200px]">
+                <Square className="w-5 h-5" />
                 End Ride
               </Button>
             )}
           </div>
         </div>
 
-        {/* Right Column — Route Progress */}
+        {/* Right — Route Progress */}
         <div className="lg:col-span-3">
           {route?.stops && route.stops.length > 0 ? (
             <RouteProgress
@@ -285,7 +262,7 @@ export default function ActiveRidePage() {
             <Card className="h-full flex items-center justify-center">
               <div className="text-center py-8">
                 <AlertTriangle className="w-8 h-8 text-warning mx-auto mb-2" />
-                <p className="text-sm text-text-muted">No route data</p>
+                <p className="text-sm text-content-tertiary">No route data</p>
               </div>
             </Card>
           )}
@@ -295,44 +272,20 @@ export default function ActiveRidePage() {
       {/* Telemetry Bar */}
       <Card variant="compact">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="flex items-center gap-3">
-            <MapPin className="w-4 h-4 text-accent" />
-            <div>
-              <p className="text-xs text-text-muted">Position</p>
-              <p className="text-sm font-mono text-text-primary">
-                {vehiclePos
-                  ? `${vehiclePos.lat.toFixed(4)}, ${vehiclePos.lon.toFixed(4)}`
-                  : "—"}
-              </p>
+          {[
+            { icon: MapPin, label: "Position", value: vehiclePos ? `${vehiclePos.lat.toFixed(4)}, ${vehiclePos.lon.toFixed(4)}` : "—" },
+            { icon: Gauge, label: "Speed", value: `${vehiclePos?.speed?.toFixed(1) || "0.0"} km/h` },
+            { icon: Clock, label: "Next Stop ETA", value: nextEta ? formatETA(nextEta) : "—" },
+            { icon: Route, label: "Assignment", value: assignment ? `#${assignment.id}` : "—" },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-3">
+              <item.icon className="w-4 h-4 text-primary-500" />
+              <div>
+                <p className="text-[10px] text-content-tertiary uppercase tracking-wider">{item.label}</p>
+                <p className="text-sm font-mono text-content">{item.value}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Gauge className="w-4 h-4 text-accent" />
-            <div>
-              <p className="text-xs text-text-muted">Speed</p>
-              <p className="text-sm font-mono text-text-primary">
-                {vehiclePos?.speed?.toFixed(1) || "0.0"} km/h
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Clock className="w-4 h-4 text-accent" />
-            <div>
-              <p className="text-xs text-text-muted">Next Stop ETA</p>
-              <p className="text-sm font-mono text-text-primary">
-                {nextEta ? formatETA(nextEta) : "—"}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Navigation className="w-4 h-4 text-accent" />
-            <div>
-              <p className="text-xs text-text-muted">Assignment</p>
-              <p className="text-sm font-mono text-text-primary">
-                {assignment ? `#${assignment.id}` : "—"}
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </Card>
     </div>

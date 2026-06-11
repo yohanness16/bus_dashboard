@@ -17,59 +17,54 @@ export function Topbar({ connectionStatus = "idle", routeNumber }: TopbarProps) 
   const now = useCurrentTime();
 
   return (
-    <header className="h-16 bg-bg-surface/80 backdrop-blur-xl border-b border-border flex items-center justify-between px-6 sticky top-0 z-30">
-      {/* Left: Route info */}
+    <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-stroke flex items-center justify-between px-6 sticky top-0 z-30">
+      {/* Left */}
       <div className="flex items-center gap-4">
         {routeNumber && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-text-muted">Route</span>
-            <span className="text-sm font-mono font-bold text-accent bg-accent/10 px-2.5 py-0.5 rounded">
+            <span className="text-xs text-content-tertiary">Route</span>
+            <span className="text-xs font-bold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg font-mono">
               {routeNumber}
             </span>
           </div>
         )}
       </div>
 
-      {/* Center: Time & Date */}
+      {/* Center: Time */}
       <div className="flex items-center gap-6">
         <div className="text-center">
-          <p className="text-lg font-mono font-bold text-text-primary tracking-tight">
+          <p className="text-lg font-bold text-gray-900 font-mono tracking-tight">
             {now ? formatTime(now) : "--:--:--"}
           </p>
-          <p className="text-xs text-text-muted">
+          <p className="text-[10px] text-content-tertiary">
             {now ? formatDate(now) : "Loading..."}
           </p>
         </div>
       </div>
 
-      {/* Right: Status + User */}
-      <div className="flex items-center gap-4">
+      {/* Right */}
+      <div className="flex items-center gap-3">
         <ConnectionStatus status={connectionStatus} compact />
 
-        {/* Notifications */}
-        <button className="relative p-2 rounded-lg hover:bg-bg-elevated transition-colors">
-          <Bell className="w-4 h-4 text-text-secondary" />
+        <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <Bell className="w-4 h-4 text-content-secondary" />
         </button>
 
-        {/* User info */}
         {session.driver_username && (
-          <div className="flex items-center gap-2 pl-4 border-l border-border">
-            <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center">
-              <User className="w-4 h-4 text-accent" />
+          <div className="flex items-center gap-2 pl-3 border-l border-stroke">
+            <div className="w-8 h-8 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center">
+              <User className="w-4 h-4 text-primary-600" />
             </div>
             <div className="hidden md:block">
-              <p className="text-sm font-medium text-text-primary">
-                {session.driver_username}
-              </p>
-              <p className="text-xs text-text-muted">Driver</p>
+              <p className="text-sm font-medium text-content">{session.driver_username}</p>
+              <p className="text-[10px] text-content-tertiary">Driver</p>
             </div>
           </div>
         )}
 
-        {/* Logout */}
         <button
           onClick={logout}
-          className="p-2 rounded-lg hover:bg-destructive/10 text-text-muted hover:text-destructive transition-colors"
+          className="p-2 rounded-lg hover:bg-red-50 text-content-tertiary hover:text-danger transition-colors"
           title="Sign out"
         >
           <LogOut className="w-4 h-4" />

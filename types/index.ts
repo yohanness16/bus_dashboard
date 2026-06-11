@@ -1,5 +1,6 @@
 // ============================================================
 // BusTrack Bus Dashboard — Complete Type Definitions
+// Matches backend schemas exactly
 // ============================================================
 
 // === Auth Types ===
@@ -14,6 +15,15 @@ export interface PairVerifyResponse {
   vehicle_id: number;
   plate_number: string;
   device_id: string;
+  message: string;
+}
+
+export interface PairingCodeResponse {
+  code: string;
+  vehicle_id: number;
+  plate_number: string;
+  device_id: string;
+  expires_in_seconds: number;
   message: string;
 }
 
@@ -50,6 +60,11 @@ export interface DriverLogoutRequest {
   session_id: number;
 }
 
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+}
+
 // === Vehicle Types ===
 
 export interface Vehicle {
@@ -67,6 +82,14 @@ export interface Vehicle {
   position_updated_at?: string;
 }
 
+export interface VehicleCreate {
+  plate_number: string;
+  device_id: string;
+  bus_type?: string;
+  capacity?: number;
+  is_active?: boolean;
+}
+
 export interface VehiclePosition {
   vehicle_id: number;
   plate_number: string;
@@ -78,6 +101,37 @@ export interface VehiclePosition {
   assignment_id?: number;
   occupancy_level: number;
   last_updated?: string;
+}
+
+export interface TelemetryInput {
+  device_id: string;
+  lat: number;
+  lon: number;
+  speed?: number;
+  pixel_count?: number;
+  raw_payload?: string;
+}
+
+// === Stop Types ===
+
+export interface Stop {
+  id: number;
+  name: string;
+  lat: number;
+  lon: number;
+  base_dwell_time: number;
+  is_terminal: boolean;
+  peak_multiplier: number;
+  stop_order?: number;
+}
+
+export interface StopCreate {
+  name: string;
+  lat: number;
+  lon: number;
+  base_dwell_time?: number;
+  is_terminal?: boolean;
+  peak_multiplier?: number;
 }
 
 // === Route Types ===
@@ -107,6 +161,20 @@ export interface RouteWithStops extends Route {
   stops: RouteStop[];
 }
 
+export interface RouteCreate {
+  route_number: string;
+  direction?: string;
+  name?: string;
+  origin?: string;
+  destination?: string;
+  stops?: { stop_id: number; sequence_order: number }[];
+}
+
+export interface RouteStopSchema {
+  stop_id: number;
+  sequence_order: number;
+}
+
 // === Assignment Types ===
 
 export interface Assignment {
@@ -122,7 +190,15 @@ export interface Assignment {
   route_number?: string;
 }
 
-// === Crowd Types ===
+export interface DriverAssignmentStartBody {
+  route_number: string;
+}
+
+export interface DriverAssignmentEndBody {
+  assignment_id: number;
+}
+
+// === Crowd / CV Types ===
 
 export interface CrowdData {
   plate_number: string;
@@ -206,6 +282,120 @@ export interface ETAStopPayload {
   computed_at: number;
 }
 
+// === ETA Types ===
+
+export interface ETAData {
+  stop_name: string;
+  eta_seconds: number;
+  distance_m: number;
+  occupancy_level: number;
+}
+
+export interface RouteETAs {
+  route_number: string;
+  etas: Record<string, ETAData>;
+}
+
+// === Search Types ===
+
+export interface PointToPointSearch {
+  start_stop_id: number;
+  end_stop_id: number;
+  max_routes?: number;
+  max_buses?: number;
+}
+
+export interface GeoJourneySearch {
+  start_query?: string;
+  start_lat?: number;
+  start_lon?: number;
+  end_query?: string;
+  end_lat?: number;
+  end_lon?: number;
+  max_routes?: number;
+  max_buses?: number;
+}
+
+export interface SearchRouteResult {
+  route_id?: number;
+  route_number: string;
+  direction?: string;
+  name?: string;
+  start_index?: number;
+  end_index?: number;
+  etas: Record<string, unknown>;
+  buses: SearchBusResult[];
+}
+
+export interface SearchBusResult {
+  vehicle_id: number;
+  plate_number: string;
+  lat: number;
+  lon: number;
+  speed: number;
+  route_id: number;
+  assignment_id?: number;
+  occupancy_level: number;
+  eta_seconds?: number;
+  eta_live_seconds?: number;
+  eta_mode?: string;
+  eta_ml_seconds?: number;
+  eta_heuristic_seconds?: number;
+  distance_m?: number;
+  eta_to_start_stop?: number;
+  eta_live_to_start_stop?: number;
+  eta_to_end_stop?: number;
+  eta_live_to_end_stop?: number;
+  position_age_seconds?: number;
+  cv_data?: {
+    people_count: number;
+    crowd_density: number;
+    method: string;
+    confidence: number;
+  };
+}
+
+// === Favorites ===
+
+export interface Favorite {
+  id: number;
+  user_id: number;
+  route_id: number;
+  nickname?: string;
+}
+
+export interface FavoriteCreate {
+  user_id: number;
+  route_id: number;
+  nickname?: string;
+}
+
+// === Ratings ===
+
+export interface Rating {
+  id: number;
+  user_id: number;
+  assignment_id: number;
+  score: number;
+  comment?: string;
+}
+
+export interface RatingCreate {
+  user_id: number;
+  assignment_id: number;
+  score: number;
+  comment?: string;
+}
+
+// === Notifications ===
+
+export interface NotificationSettingCreate {
+  user_id: number;
+  route_id: number;
+  stop_id?: number;
+  lead_time_minutes?: number;
+}
+
 // === Session Storage ===
 
 export interface SessionData {
@@ -221,15 +411,6 @@ export interface SessionData {
   route_id?: number;
 }
 
-// === Announcement Types (FUTURE) ===
-
-export interface AnnouncementPayload {
-  vehicle_id: number;
-  announcement_type: "next_stop" | "current_stop" | "general";
-  message: string;
-  stop_name?: string;
-}
-
 // === App State ===
 
 export type AppScreen =
@@ -240,6 +421,11 @@ export type AppScreen =
   | "active-ride"
   | "post-ride";
 
-export type ConnectionStatus = "idle" | "connecting" | "connected" | "disconnected" | "error";
+export type ConnectionStatus =
+  | "idle"
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "error";
 
 export type CrowdLevel = 0 | 1 | 2; // Low, Medium, High

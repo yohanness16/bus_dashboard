@@ -8,16 +8,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ConnectionStatus } from "@/types";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { session, screen } = useAuth();
   const router = useRouter();
   const [wsStatus, setWsStatus] = useState<ConnectionStatus>("idle");
 
-  // WebSocket connection
   const { status } = useBusWebSocket({
     token: session.bd_bus_token || null,
     routeId: session.route_id,
@@ -27,19 +22,14 @@ export default function DashboardLayout({
     setWsStatus(status);
   }, [status]);
 
-  // Redirect if not authenticated
   useEffect(() => {
-    if (screen === "pairing") {
-      router.replace("/pairing");
-    } else if (screen === "unlock") {
-      router.replace("/unlock");
-    } else if (screen === "login") {
-      router.replace("/login");
-    }
+    if (screen === "pairing") router.replace("/pairing");
+    else if (screen === "unlock") router.replace("/unlock");
+    else if (screen === "login") router.replace("/login");
   }, [screen, router]);
 
   return (
-    <div className="flex min-h-dvh bg-bg">
+    <div className="flex min-h-dvh bg-surface-secondary">
       <Sidebar
         vehiclePlate={session.bd_plate}
         routeNumber={session.route_id?.toString()}
