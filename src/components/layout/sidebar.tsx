@@ -7,8 +7,9 @@ import {
   Route,
   History,
   Settings,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeftClose,
+  PanelLeft,
+  Zap,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -17,112 +18,128 @@ interface SidebarProps {
   activeItem?: string;
 }
 
-const navItems = [
+const mainNav = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "live-map", label: "Live Map", icon: Map },
   { id: "routes", label: "Routes", icon: Route },
   { id: "history", label: "Trip History", icon: History },
+];
+
+const bottomNav = [
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar({ collapsed, onToggle, activeItem = "dashboard" }: SidebarProps) {
   return (
     <aside
-      className="flex flex-col h-full shrink-0 transition-all duration-300 ease-out"
-      style={{
-        width: collapsed ? "var(--sidebar-collapsed)" : "var(--sidebar-width)",
-        background: "var(--surface-850)",
-        borderRight: "1px solid var(--border-subtle)",
-      }}
+      className="flex flex-col h-full shrink-0 border-r bg-card transition-all duration-200 ease-out"
+      style={{ width: collapsed ? "var(--sidebar-collapsed)" : "var(--sidebar-width)" }}
     >
       {/* Logo */}
       <div
-        className="flex items-center gap-3 px-4 shrink-0"
+        className="flex items-center gap-2.5 px-4 shrink-0 border-b"
         style={{ height: "var(--topnav-height)" }}
       >
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: "rgba(59,130,246,0.15)" }}
-        >
-          <Bus className="w-5 h-5" style={{ color: "var(--primary-400)" }} />
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <Bus className="w-4 h-4 text-primary-foreground" />
         </div>
         {!collapsed && (
-          <span
-            className="text-base font-bold tracking-tight whitespace-nowrap"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Bus<span style={{ color: "var(--primary-400)" }}>Track</span>
+          <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+            Bus<span className="text-primary">Track</span>
           </span>
         )}
       </div>
 
-      {/* Nav Items */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
+      {/* Toggle */}
+      <div className="px-3 py-2 shrink-0">
+        <button
+          onClick={onToggle}
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer text-xs"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <PanelLeft className="w-4 h-4 mx-auto" />
+          ) : (
+            <>
+              <PanelLeftClose className="w-4 h-4" />
+              <span>Collapse</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Main Nav */}
+      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        {!collapsed && (
+          <p className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Main
+          </p>
+        )}
+        {mainNav.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
           return (
             <button
               key={item.id}
-              className="w-full flex items-center gap-3 rounded-xl cursor-pointer transition-all duration-200 group"
+              className="w-full flex items-center gap-2.5 rounded-md cursor-pointer transition-colors text-sm"
               style={{
-                padding: collapsed ? "10px 0" : "10px 14px",
+                padding: collapsed ? "9px 0" : "9px 10px",
                 justifyContent: collapsed ? "center" : "flex-start",
-                background: isActive ? "rgba(59,130,246,0.12)" : "transparent",
-                color: isActive ? "var(--primary-400)" : "var(--text-secondary)",
+                background: isActive ? "hsl(var(--accent))" : "transparent",
+                color: isActive ? "hsl(var(--accent-foreground))" : "hsl(var(--muted-foreground))",
+                fontWeight: isActive ? 500 : 400,
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.background = "var(--surface-700)";
-                  e.currentTarget.style.color = "var(--text-primary)";
+                  e.currentTarget.style.background = "hsl(var(--accent))";
+                  e.currentTarget.style.color = "hsl(var(--accent-foreground))";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "var(--text-secondary)";
+                  e.currentTarget.style.color = "hsl(var(--muted-foreground))";
                 }
               }}
+              title={collapsed ? item.label : undefined}
             >
               <Icon className="w-[18px] h-[18px] shrink-0" />
-              {!collapsed && (
-                <span className="text-[13px] font-medium whitespace-nowrap">
-                  {item.label}
-                </span>
-              )}
+              {!collapsed && <span className="whitespace-nowrap">{item.label}</span>}
             </button>
           );
         })}
       </nav>
 
-      {/* Collapse Toggle */}
-      <div className="px-3 py-4 shrink-0" style={{ borderTop: "1px solid var(--border-subtle)" }}>
-        <button
-          onClick={onToggle}
-          className="w-full flex items-center justify-center gap-2 py-2 rounded-xl cursor-pointer transition-all duration-200"
-          style={{
-            color: "var(--text-muted)",
-            background: "transparent",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--surface-700)";
-            e.currentTarget.style.color = "var(--text-secondary)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-muted)";
-          }}
-        >
-          {collapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <>
-              <ChevronLeft className="w-4 h-4" />
-              <span className="text-xs font-medium">Collapse</span>
-            </>
-          )}
-        </button>
+      {/* Bottom Nav */}
+      <div className="px-3 py-2 border-t space-y-1 shrink-0">
+        {bottomNav.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              className="w-full flex items-center gap-2.5 rounded-md cursor-pointer transition-colors text-sm text-muted-foreground hover:text-foreground hover:bg-accent"
+              style={{
+                padding: collapsed ? "9px 0" : "9px 10px",
+                justifyContent: collapsed ? "center" : "flex-start",
+              }}
+              title={collapsed ? item.label : undefined}
+            >
+              <Icon className="w-[18px] h-[18px] shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </button>
+          );
+        })}
       </div>
+
+      {/* Status */}
+      {!collapsed && (
+        <div className="px-3 py-3 border-t shrink-0">
+          <div className="flex items-center gap-2 px-2.5 py-2 rounded-md bg-muted/50">
+            <Zap className="w-3.5 h-3.5 text-success" />
+            <span className="text-[11px] text-muted-foreground">System Online</span>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

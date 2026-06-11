@@ -12,133 +12,65 @@ interface TopNavProps {
 
 export function TopNav({
   driverName = "Driver",
-  darkMode = true,
+  darkMode = false,
   onToggleDark,
   onLogout,
   onMenuClick,
 }: TopNavProps) {
   return (
     <header
-      className="flex items-center justify-between px-4 shrink-0"
-      style={{
-        height: "var(--topnav-height)",
-        background: "var(--surface-850)",
-        borderBottom: "1px solid var(--border-subtle)",
-      }}
+      className="flex items-center justify-between px-4 shrink-0 border-b bg-card"
+      style={{ height: "var(--topnav-height)" }}
     >
-      {/* Left: Menu + Search */}
+      {/* Left */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-lg cursor-pointer transition-all duration-200 lg:hidden"
-          style={{ color: "var(--text-secondary)" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--surface-700)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-          }}
+          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors lg:hidden cursor-pointer"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         {/* Search */}
-        <div
-          className="relative flex-1 max-w-md"
-        >
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-            style={{ color: "var(--text-muted)" }}
-          />
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder="Search routes, stops..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl text-sm outline-none transition-all duration-200"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-              color: "var(--text-primary)",
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.border = "1px solid var(--primary-500)";
-              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.border = "1px solid var(--border-subtle)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
+            className="w-full pl-9 pr-4 py-1.5 rounded-md text-sm bg-muted/50 border-0 outline-none text-foreground placeholder:text-muted-foreground focus:bg-background focus:ring-2 focus:ring-ring transition-all"
           />
         </div>
       </div>
 
-      {/* Right: Actions + Profile */}
-      <div className="flex items-center gap-2 shrink-0 ml-4">
-        {/* Dark Mode Toggle */}
+      {/* Right */}
+      <div className="flex items-center gap-1.5 shrink-0 ml-4">
+        {/* Dark Mode */}
         <button
           onClick={onToggleDark}
-          className="p-2 rounded-lg cursor-pointer transition-all duration-200"
-          style={{ color: "var(--text-secondary)" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--surface-700)";
-            e.currentTarget.style.color = "var(--text-primary)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-secondary)";
-          }}
+          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
+          title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
         >
           {darkMode ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
         </button>
 
         {/* Notifications */}
         <button
-          className="p-2 rounded-lg cursor-pointer transition-all duration-200 relative"
-          style={{ color: "var(--text-secondary)" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--surface-700)";
-            e.currentTarget.style.color = "var(--text-primary)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-secondary)";
-          }}
+          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer relative"
         >
           <Bell className="w-[18px] h-[18px]" />
-          <span
-            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-            style={{ background: "var(--danger)" }}
-          />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-danger" />
         </button>
 
         {/* Divider */}
-        <div
-          className="w-px h-6 mx-1"
-          style={{ background: "var(--border-subtle)" }}
-        />
+        <div className="w-px h-5 bg-border mx-1" />
 
         {/* Profile */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <div className="text-right hidden sm:block">
-            <p
-              className="text-xs font-semibold leading-tight"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {driverName}
-            </p>
-            <p
-              className="text-[10px] leading-tight"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Driver
-            </p>
+            <p className="text-xs font-medium text-foreground leading-tight">{driverName}</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">Driver</p>
           </div>
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-            style={{
-              background: "linear-gradient(135deg, var(--primary-500), var(--accent-300))",
-              color: "#fff",
-            }}
-          >
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-semibold text-primary-foreground">
             {driverName.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -147,20 +79,7 @@ export function TopNav({
         {onLogout && (
           <button
             onClick={onLogout}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200"
-            style={{
-              background: "var(--danger-dim)",
-              border: "1px solid var(--danger-border)",
-              color: "var(--danger)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--danger)";
-              e.currentTarget.style.color = "#fff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--danger-dim)";
-              e.currentTarget.style.color = "var(--danger)";
-            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Logout</span>

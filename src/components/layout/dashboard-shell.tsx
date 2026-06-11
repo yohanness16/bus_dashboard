@@ -18,29 +18,18 @@ export function DashboardShell({
   activeNav = "dashboard",
 }: DashboardShellProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Sync dark mode class on mount
   useEffect(() => {
     setMounted(true);
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.add("light");
-      document.documentElement.classList.remove("dark");
-    }
   }, []);
 
   const toggleDark = () => {
     setDarkMode((prev) => {
       const next = !prev;
-      if (typeof document !== "undefined") {
-        document.documentElement.classList.toggle("dark", next);
-        document.documentElement.classList.toggle("light", !next);
-      }
+      document.documentElement.classList.toggle("dark", next);
       return next;
     });
   };
@@ -48,7 +37,7 @@ export function DashboardShell({
   if (!mounted) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "var(--surface-900)" }}>
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex">
         <Sidebar
@@ -60,15 +49,14 @@ export function DashboardShell({
 
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
-          onClick={() => setMobileMenuOpen(false)}
-        >
+        <>
           <div
-            className="h-full"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div
+            className="fixed inset-y-0 left-0 z-50 lg:hidden"
             style={{ width: "var(--sidebar-width)" }}
-            onClick={(e) => e.stopPropagation()}
           >
             <Sidebar
               collapsed={false}
@@ -76,7 +64,7 @@ export function DashboardShell({
               activeItem={activeNav}
             />
           </div>
-        </div>
+        </>
       )}
 
       {/* Main Area */}
@@ -88,10 +76,7 @@ export function DashboardShell({
           onLogout={onLogout}
           onMenuClick={() => setMobileMenuOpen(true)}
         />
-        <main
-          className="flex-1 overflow-y-auto"
-          style={{ background: "var(--surface-900)" }}
-        >
+        <main className="flex-1 overflow-y-auto bg-muted/30">
           {children}
         </main>
       </div>
