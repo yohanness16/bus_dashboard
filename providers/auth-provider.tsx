@@ -16,7 +16,7 @@ import {
   clearSession,
 } from "@/lib/session-storage";
 import { AppScreen, SessionData, Vehicle, RouteWithStops } from "@/types";
-import { authApi, vehicleApi, routeApi } from "@/lib/api";
+import { authApi, vehicleApi, routeApi, pairingApi } from "@/lib/api";
 
 interface AuthContextType {
   screen: AppScreen;
@@ -75,21 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/pair/verify`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, password }),
-        }
-      );
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.detail || "Invalid or expired code");
-      }
-      const data = await res.json();
+      const res = await pairingApi.verifyCode(code, password);
+      const data = res.data;
       setBusSession({
-        bus_token: "", // no bus_token yet, need unlock first
+        bus_token: "",
         vehicle_id: data.vehicle_id,
         device_id: data.device_id,
         plate_number: data.plate_number,
@@ -102,7 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
       setScreenState("unlock");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Pairing failed";
+      let msg = "Pairing failed";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        msg = axiosErr.response?.data?.detail || msg;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
       setError(msg);
       throw err;
     } finally {

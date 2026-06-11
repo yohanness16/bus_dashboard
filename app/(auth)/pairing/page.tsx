@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -25,22 +25,32 @@ export default function PairingPage() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const prevScreenRef = useRef(screen);
 
-  // Redirect to unlock after successful pairing
+  // Watch for screen change after pairing — this is the reliable redirect
   useEffect(() => {
-    if (success && screen === "unlock") {
+    if (prevScreenRef.current === "pairing" && screen === "unlock") {
+      router.replace("/unlock");
+    }
+    prevScreenRef.current = screen;
+  }, [screen, router]);
+
+  // Also watch for local success state as a fallback
+  useEffect(() => {
+    if (success) {
       const timer = setTimeout(() => {
         router.replace("/unlock");
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [success, screen, router]);
+  }, [success, router]);
 
   const displayError = localError || error;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
+    setSuccess(false);
 
     if (!code.trim()) {
       setLocalError("Pairing code is required");
@@ -58,6 +68,7 @@ export default function PairingPage() {
     try {
       await pairDevice(code.trim(), password);
       setSuccess(true);
+      // The screen state change in auth-provider will trigger the redirect effect above
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Pairing failed. Check your code and password.";
@@ -67,7 +78,6 @@ export default function PairingPage() {
 
   return (
     <div className="min-h-dvh bg-[#F8FAFC] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Blue gradient mesh background */}
       <div className="auth-mesh-bg">
         <div className="orb orb-1" />
         <div className="orb orb-2" />
@@ -75,7 +85,6 @@ export default function PairingPage() {
         <div className="orb orb-4" />
       </div>
 
-      {/* Grid pattern */}
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-[0.02]"
         style={{
@@ -94,7 +103,6 @@ export default function PairingPage() {
               <Bus className="w-6 h-6 text-white" />
             </div>
           </div>
-
           <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">
             Bus<span className="text-primary-600">Track</span>
           </h1>
