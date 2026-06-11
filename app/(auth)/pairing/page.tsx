@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/auth-provider";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -11,7 +12,6 @@ import {
   KeyRound,
   Lock,
   ShieldCheck,
-  ArrowRight,
   CheckCircle2,
   XCircle,
   Sparkles,
@@ -19,11 +19,22 @@ import {
 } from "lucide-react";
 
 export default function PairingPage() {
-  const { pairDevice, loading, error } = useAuth();
+  const { pairDevice, loading, error, screen } = useAuth();
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Redirect to unlock after successful pairing
+  useEffect(() => {
+    if (success && screen === "unlock") {
+      const timer = setTimeout(() => {
+        router.replace("/unlock");
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [success, screen, router]);
 
   const displayError = localError || error;
 
@@ -77,7 +88,6 @@ export default function PairingPage() {
       <div className="w-full max-w-[440px] relative z-10">
         {/* Logo + Header */}
         <div className="text-center mb-10 animate-fade-in">
-          {/* Logo */}
           <div className="relative inline-flex items-center justify-center mb-5">
             <div className="absolute w-[72px] h-[72px] rounded-2xl bg-primary-200/30 animate-[pulseRing_3s_ease-out_infinite]" />
             <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/20">

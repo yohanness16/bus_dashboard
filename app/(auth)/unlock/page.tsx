@@ -1,16 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/auth-provider";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Bus, Lock, Unlock, XCircle, Fingerprint } from "lucide-react";
 
 export default function UnlockPage() {
-  const { unlockBus, loading, error, session } = useAuth();
+  const { unlockBus, loading, error, session, screen } = useAuth();
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Redirect to login after successful unlock
+  useEffect(() => {
+    if (success && screen === "login") {
+      const timer = setTimeout(() => {
+        router.replace("/login");
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [success, screen, router]);
 
   const displayError = localError || error;
 
@@ -25,6 +38,7 @@ export default function UnlockPage() {
 
     try {
       await unlockBus(password);
+      setSuccess(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Incorrect password";
       setLocalError(msg);
@@ -113,6 +127,15 @@ export default function UnlockPage() {
                 <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 border border-red-100">
                   <XCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                   <p className="text-sm text-danger/90 leading-relaxed">{displayError}</p>
+                </div>
+              )}
+
+              {success && (
+                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100">
+                  <Unlock className="w-4 h-4 text-success shrink-0 mt-0.5" />
+                  <p className="text-sm text-emerald-700 leading-relaxed">
+                    Device unlocked! Redirecting...
+                  </p>
                 </div>
               )}
 
