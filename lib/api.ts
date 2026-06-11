@@ -61,6 +61,10 @@ export const routeApi = {
   getRoute: (id: number) => api.get(`/routes/${id}`),
   // Note: use listRoutes + filter client-side, or getRoute(id)
   getEtas: (routeNumber: string) => api.get(`/routes/${routeNumber}/etas`),
+  search: (query: string, limit = 10) =>
+    api.get(`/routes/search`, { params: { q: query, limit } }),
+  getByNumber: (routeNumber: string) =>
+    api.get(`/routes/by-number/${encodeURIComponent(routeNumber)}`),
   createRoute: (data: {
     route_number: string;
     direction?: string;

@@ -19,13 +19,20 @@ import {
 } from "lucide-react";
 
 export default function PairingPage() {
-  const { pairDevice, loading, error, screen } = useAuth();
+  const { pairDevice, loading, error, screen, session } = useAuth();
   const router = useRouter();
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const prevScreenRef = useRef(screen);
+
+  // If device is already paired (bd_device_id exists), redirect to unlock immediately
+  useEffect(() => {
+    if (session.bd_device_id) {
+      router.replace("/unlock");
+    }
+  }, [session.bd_device_id, router]);
 
   // Watch for screen change after pairing — this is the reliable redirect
   useEffect(() => {

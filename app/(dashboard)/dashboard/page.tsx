@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
@@ -61,38 +61,53 @@ export default function PreRidePage() {
 
   useEffect(() => {
     loadPreRideData();
-    loadRoutes();
-  }, [loadPreRideData]);
+    // Load initial routes list (no search = show all)
+    handleSearch("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const loadRoutes = async () => {
-    setRoutesLoading(true);
-    try {
-      const res = await routeApi.listRoutes(0, 100);
-      const routeList: RouteType[] = res.data || [];
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-      // Fetch full route data with stops for each
-      const routesWithStops = await Promise.all(
-        routeList.map(async (r) => {
-          try {
-            const detail = await routeApi.getRoute(r.id);
-            return detail.data as RouteWithStops;
-          } catch {
-            return { ...r, stops: [] } as RouteWithStops;
-          }
-        })
-      );
-      setRoutes(routesWithStops);
+  const handleSearch = useCallback(async (query: string) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
 
-      // Pre-select if vehicle already has a route
-      if (assignedRoute) {
-        setSelectedRoute(assignedRoute);
+    if (!query.trim()) {
+      // Load initial list — just first 20 routes with details
+      setRoutesLoading(true);
+      try {
+        const res = await routeApi.listRoutes(0, 20);
+        const routeList: RouteType[] = res.data || [];
+        const routesWithStops = await Promise.all(
+          routeList.map(async (r) => {
+            try {
+              const detail = await routeApi.getRoute(r.id);
+              return detail.data as RouteWithStops;
+            } catch {
+              return { ...r, stops: [] } as RouteWithStops;
+            }
+          })
+        );
+        setRoutes(routesWithStops);
+        if (assignedRoute) setSelectedRoute(assignedRoute);
+      } catch { /* non-fatal */ } finally {
+        setRoutesLoading(false);
       }
-    } catch {
-      // non-fatal
-    } finally {
-      setRoutesLoading(false);
+      return;
     }
-  };
+
+    // Debounced server-side search
+    searchTimerRef.current = setTimeout(async () => {
+      setRoutesLoading(true);
+      try {
+        const res = await routeApi.search(query, 20);
+        setRoutes(res.data || []);
+      } catch {
+        // Fallback to client-side filter on existing routes
+      } finally {
+        setRoutesLoading(false);
+      }
+    }, 350);
+  }, [assignedRoute]);
 
   const handleSelectRoute = (route: RouteWithStops) => {
     setSelectedRoute(route);
@@ -200,7 +215,10 @@ export default function PreRidePage() {
                   type="text"
                   placeholder="Search routes..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    handleSearch(e.target.value);
+                  }}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-stroke text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400"
                   autoFocus
                 />

@@ -196,8 +196,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (vRes.data.route_id) {
         setRouteId(vRes.data.route_id);
         setSession((prev) => ({ ...prev, route_id: vRes.data.route_id }));
-        const rRes = await routeApi.getRoute(vRes.data.route_id);
-        setRoute(rRes.data);
+        // Load route in background — don't block on it
+        routeApi.getRoute(vRes.data.route_id).then((rRes) => {
+          setRoute(rRes.data);
+        }).catch(() => {});
       }
     } catch {
       // non-fatal
