@@ -51,23 +51,20 @@ function WelcomeBanner({ driverName }: { driverName: string }) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-5"
+      className="relative overflow-hidden rounded-2xl p-6"
       style={{
-        background:
-          "linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0.6) 100%)",
+        background: "linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0.6) 100%)",
         border: "1px solid rgba(59,130,246,0.2)",
       }}
     >
       <div
         className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-20 pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, #3B82F6, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(circle, #3B82F6, transparent 70%)" }}
       />
       <div className="relative z-10 flex items-center justify-between">
         <div>
           <p
-            className="text-xs font-semibold uppercase tracking-wider mb-1"
+            className="text-[10px] font-semibold uppercase tracking-wider mb-1"
             style={{ color: "var(--primary-400)" }}
           >
             {greeting}
@@ -122,13 +119,7 @@ function StatTile({
   color: string;
 }) {
   return (
-    <div
-      className="flex items-center gap-3 p-3.5 rounded-xl"
-      style={{
-        background: "var(--surface-800)",
-        border: "1px solid var(--border-subtle)",
-      }}
-    >
+    <div className="surface-card surface-card-hover flex items-center gap-3 p-4">
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
         style={{ background: `${color}15` }}
@@ -143,7 +134,7 @@ function StatTile({
           {label}
         </p>
         <p
-          className="text-sm font-bold truncate"
+          className="text-sm font-bold truncate tabular-nums"
           style={{ color: "var(--text-primary)" }}
         >
           {value}
@@ -160,8 +151,7 @@ function StatTile({
 
 // ─── Main Screen ───
 export function PreRideScreen() {
-  const { session, vehicle, route, loadPreRideData, logout, setScreen } =
-    useAuth();
+  const { session, vehicle, route, loadPreRideData, logout, setScreen } = useAuth();
   const { success, error: toastError } = useToast();
   const [position, setPosition] = useState<VehiclePosition | null>(null);
   const [starting, setStarting] = useState(false);
@@ -210,7 +200,6 @@ export function PreRideScreen() {
     }
   };
 
-  // Load route details when route number is entered
   useEffect(() => {
     if (!routeNumber.trim()) {
       setLiveRoute(route);
@@ -244,8 +233,7 @@ export function PreRideScreen() {
       success("Ride started! Navigate safely.");
       setScreen("active-ride");
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to start ride";
+      const msg = err instanceof Error ? err.message : "Failed to start ride";
       toastError(msg);
     } finally {
       setStarting(false);
@@ -272,7 +260,7 @@ export function PreRideScreen() {
       <header
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{
-          background: "var(--surface-800)",
+          background: "var(--surface-850)",
           borderBottom: "1px solid var(--border-subtle)",
         }}
       >
@@ -284,18 +272,11 @@ export function PreRideScreen() {
             <Bus className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
           </div>
           <div>
-            <span
-              className="text-sm font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
+            <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
               BusTrack
             </span>
-            <span
-              className="text-sm font-light"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              {" "}
-              Dashboard
+            <span className="text-sm font-light" style={{ color: "var(--text-tertiary)" }}>
+              {" "}Dashboard
             </span>
           </div>
         </div>
@@ -303,11 +284,19 @@ export function PreRideScreen() {
           <ConnectionBadge status={wsStatus} compact />
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:opacity-80"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200"
             style={{
               background: "var(--danger-dim)",
               border: "1px solid var(--danger-border)",
               color: "var(--danger)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--danger)";
+              e.currentTarget.style.color = "#fff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--danger-dim)";
+              e.currentTarget.style.color = "var(--danger)";
             }}
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -317,7 +306,7 @@ export function PreRideScreen() {
       </header>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-5xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-6xl mx-auto w-full">
         {/* Welcome Banner */}
         <div className="anim-fade-up">
           <WelcomeBanner driverName={session.driver_username || "Driver"} />
@@ -329,13 +318,7 @@ export function PreRideScreen() {
           style={{ animationDelay: "50ms" }}
         >
           {/* Vehicle Card */}
-          <div
-            className="rounded-2xl p-5"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
+          <div className="surface-card p-5">
             <div className="flex items-center gap-2 mb-4">
               <Bus className="w-4 h-4" style={{ color: "var(--accent-300)" }} />
               <h3
@@ -348,10 +331,7 @@ export function PreRideScreen() {
             {vehicle ? (
               <div className="space-y-3">
                 <div>
-                  <p
-                    className="text-xl font-bold"
-                    style={{ color: "var(--text-primary)" }}
-                  >
+                  <p className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
                     {vehicle.plate_number}
                   </p>
                   <p className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -361,11 +341,8 @@ export function PreRideScreen() {
                 <div className="flex flex-wrap gap-2">
                   {vehicle.capacity && (
                     <span
-                      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
-                      style={{
-                        background: "var(--info-dim)",
-                        color: "var(--info)",
-                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                      style={{ background: "var(--info-dim)", color: "var(--info)" }}
                     >
                       <Users className="w-3 h-3" />
                       {vehicle.capacity} seats
@@ -373,11 +350,8 @@ export function PreRideScreen() {
                   )}
                   {position?.speed !== undefined && (
                     <span
-                      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
-                      style={{
-                        background: "var(--success-dim)",
-                        color: "var(--success)",
-                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                      style={{ background: "var(--success-dim)", color: "var(--success)" }}
                     >
                       {position.speed.toFixed(0)} km/h
                     </span>
@@ -385,7 +359,7 @@ export function PreRideScreen() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="skeleton h-6 w-28 rounded-lg" />
                 <div className="skeleton h-3 w-40 rounded-lg" />
               </div>
@@ -393,18 +367,9 @@ export function PreRideScreen() {
           </div>
 
           {/* Route Card */}
-          <div
-            className="rounded-2xl p-5"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
+          <div className="surface-card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Route
-                className="w-4 h-4"
-                style={{ color: "var(--primary-400)" }}
-              />
+              <Route className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
               <h3
                 className="text-[10px] font-bold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}
@@ -425,20 +390,11 @@ export function PreRideScreen() {
                     {activeRoute.route_number}
                   </div>
                   <div>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: "var(--text-primary)" }}
-                    >
+                    <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                       {activeRoute.name || `Route ${activeRoute.route_number}`}
                     </p>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {activeRoute.direction === "forward"
-                        ? "→ Forward"
-                        : "← Reverse"}{" "}
-                      · {activeRoute.stops?.length || 0} stops
+                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                      {activeRoute.direction === "forward" ? "→ Forward" : "← Reverse"} · {activeRoute.stops?.length || 0} stops
                     </p>
                   </div>
                 </div>
@@ -448,13 +404,8 @@ export function PreRideScreen() {
                     style={{ color: "var(--text-secondary)" }}
                   >
                     <span className="font-medium">{activeRoute.origin}</span>
-                    <ChevronRight
-                      className="w-3 h-3"
-                      style={{ color: "var(--text-muted)" }}
-                    />
-                    <span className="font-medium">
-                      {activeRoute.destination}
-                    </span>
+                    <ChevronRight className="w-3 h-3" style={{ color: "var(--text-muted)" }} />
+                    <span className="font-medium">{activeRoute.destination}</span>
                   </div>
                 )}
               </div>
@@ -469,12 +420,8 @@ export function PreRideScreen() {
 
         {/* Live Map */}
         <div
-          className="rounded-2xl overflow-hidden anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            animationDelay: "100ms",
-          }}
+          className="surface-card overflow-hidden anim-fade-up"
+          style={{ animationDelay: "100ms" }}
         >
           <div
             className="flex items-center justify-between px-5 py-3"
@@ -490,10 +437,7 @@ export function PreRideScreen() {
               </h3>
             </div>
             {position && (
-              <span
-                className="text-[10px] font-mono"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <span className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>
                 {formatCoord(position.lat)}, {formatCoord(position.lon)}
               </span>
             )}
@@ -544,18 +488,11 @@ export function PreRideScreen() {
 
         {/* Route Assignment + Start */}
         <div
-          className="rounded-2xl p-5 anim-fade-up"
-          style={{
-            background: "var(--surface-800)",
-            border: "1px solid var(--border-subtle)",
-            animationDelay: "200ms",
-          }}
+          className="surface-card p-5 anim-fade-up"
+          style={{ animationDelay: "200ms" }}
         >
           <div className="flex items-center gap-2 mb-4">
-            <Navigation
-              className="w-4 h-4"
-              style={{ color: "var(--primary-400)" }}
-            />
+            <Navigation className="w-4 h-4" style={{ color: "var(--primary-400)" }} />
             <h3
               className="text-[10px] font-bold uppercase tracking-wider"
               style={{ color: "var(--text-tertiary)" }}
@@ -575,7 +512,7 @@ export function PreRideScreen() {
                 value={routeNumber}
                 onChange={(e) => setRouteNumber(e.target.value)}
                 placeholder="Enter route number (e.g. 121)"
-                className="w-full pl-10 pr-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3.5 rounded-xl text-sm font-medium outline-none transition-all duration-200"
                 style={{
                   background: "var(--surface-700)",
                   border: "1px solid var(--border-subtle)",
@@ -584,27 +521,26 @@ export function PreRideScreen() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleStartRide();
                 }}
-                onFocus={(e) =>
-                  (e.target.style.border = "1px solid var(--primary-500)")
-                }
-                onBlur={(e) =>
-                  (e.target.style.border = "1px solid var(--border-subtle)")
-                }
+                onFocus={(e) => {
+                  e.target.style.border = "1px solid var(--primary-500)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = "1px solid var(--border-subtle)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
               {routeLoading && (
                 <Loader2
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4"
-                  style={{
-                    color: "var(--primary-400)",
-                    animation: "spin 0.8s linear infinite",
-                  }}
+                  style={{ color: "var(--primary-400)", animation: "spin 0.8s linear infinite" }}
                 />
               )}
             </div>
             <button
               onClick={handleStartRide}
               disabled={starting || !routeNumber.trim()}
-              className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97]"
+              className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold cursor-pointer transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97]"
               style={{
                 background: "linear-gradient(135deg, #34D399, #10B981)",
                 color: "#fff",
@@ -614,10 +550,7 @@ export function PreRideScreen() {
               }}
             >
               {starting ? (
-                <Loader2
-                  className="w-5 h-5"
-                  style={{ animation: "spin 0.8s linear infinite" }}
-                />
+                <Loader2 className="w-5 h-5" style={{ animation: "spin 0.8s linear infinite" }} />
               ) : (
                 <Play className="w-5 h-5" />
               )}
@@ -629,7 +562,7 @@ export function PreRideScreen() {
             activeRoute &&
             activeRoute.route_number === routeNumber.trim() && (
               <div
-                className="mt-3 flex items-center gap-2 text-xs px-3 py-2 rounded-lg"
+                className="mt-3 flex items-center gap-2 text-xs px-3 py-2.5 rounded-xl"
                 style={{
                   background: "var(--success-dim)",
                   border: "1px solid var(--success-border)",
@@ -640,11 +573,7 @@ export function PreRideScreen() {
                   style={{ background: "var(--success)" }}
                 />
                 <span style={{ color: "var(--success)" }}>
-                  Route found:{" "}
-                  <strong>
-                    {activeRoute.name || activeRoute.route_number}
-                  </strong>{" "}
-                  · {activeRoute.stops?.length || 0} stops
+                  Route found: <strong>{activeRoute.name || activeRoute.route_number}</strong> · {activeRoute.stops?.length || 0} stops
                 </span>
               </div>
             )}
@@ -653,18 +582,11 @@ export function PreRideScreen() {
         {/* Stops Preview */}
         {activeRoute?.stops && activeRoute.stops.length > 0 && (
           <div
-            className="rounded-2xl p-5 anim-fade-up"
-            style={{
-              background: "var(--surface-800)",
-              border: "1px solid var(--border-subtle)",
-              animationDelay: "250ms",
-            }}
+            className="surface-card p-5 anim-fade-up"
+            style={{ animationDelay: "250ms" }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <MapPin
-                className="w-4 h-4"
-                style={{ color: "var(--success)" }}
-              />
+              <MapPin className="w-4 h-4" style={{ color: "var(--success)" }} />
               <h3
                 className="text-[10px] font-bold uppercase tracking-wider"
                 style={{ color: "var(--text-tertiary)" }}
@@ -676,10 +598,18 @@ export function PreRideScreen() {
               {activeRoute.stops.map((stop, idx) => (
                 <div
                   key={stop.id}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs transition-all duration-150"
                   style={{
                     background: "var(--surface-700)",
                     border: "1px solid var(--border-subtle)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "var(--surface-600)";
+                    e.currentTarget.style.borderColor = "var(--border-default)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--surface-700)";
+                    e.currentTarget.style.borderColor = "var(--border-subtle)";
                   }}
                 >
                   <span
